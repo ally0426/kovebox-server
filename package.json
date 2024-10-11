@@ -1,7 +1,6 @@
 {
   "name": "mern-cultural-activities-server",
   "version": "1.0.0",
-  "proxy": "http://localhost:5000",
   "description": "Server-side of the MERN cultural activities app",
   "main": "api/index.js",
   "scripts": {
