@@ -57,7 +57,10 @@ const eventbriteUrls = [
 const scrapeEventbrite = async (req, res) => {
   try {
     console.log("Launching Puppeteer...");
-    const browser = await puppeteer.launch({ headless: true });
+    const browser = await puppeteer.launch({
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      headless: true,
+    });
 
     const allActivities = [];
 
