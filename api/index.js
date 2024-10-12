@@ -18,7 +18,8 @@ const PORT = process.env.PORT || 5000;
 // Configure CORS
 app.use(
   cors({
-    origin: ["https://kovebox-client.vercel.app", process.env.CLIENT_URL],
+    origin: "*",
+    // origin: ["https://kovebox-client.vercel.app", process.env.CLIENT_URL],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // Enable this if your API uses cookies
   })
