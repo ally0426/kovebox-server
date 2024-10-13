@@ -1,12 +1,12 @@
 require("dotenv").config(); // For environment variables
 const express = require("express");
 const mongoose = require("mongoose");
-const scrapingRoutes = require("../routes/scrapingRoutes");
-const bookingRoutes = require("../routes/bookingRoutes");
-const eventRoutes = require("../routes/eventRoutes");
-const organizerRoutes = require("../routes/organizerRoutes");
-const adminRoutes = require("../routes/adminRoutes");
-const paymentRoutes = require("../routes/paymentRoutes");
+const scrapingRoutes = require("./routes/scrapingRoutes");
+const bookingRoutes = require("./routes/bookingRoutes");
+const eventRoutes = require("./routes/eventRoutes");
+const organizerRoutes = require("./routes/organizerRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const cors = require("cors"); // For cross-origin requests
 const helmet = require("helmet"); // For security headers
