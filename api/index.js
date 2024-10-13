@@ -25,8 +25,8 @@ app.use((req, res, next) => {
 app.use(
   cors({
     //origin: "*",
-    origin: ["https://kovebox-client.vercel.app"],
-    // origin: ["https://kovebox-client.vercel.app", "http://locahost:3000"],
+    origin: ["https://kovebox-client-iota.vercel.app"],
+    // origin: ["https://kovebox-client-iota.vercel.app", "http://locahost:3000"],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // Enable this if your API uses cookies
   })
