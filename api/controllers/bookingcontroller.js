@@ -4,7 +4,7 @@ const { sendBookingConfirmation } = require("../services/emailService");
 const { sendSMSConfirmation } = require("../services/smsService");
 const { createPaymentLink } = require("../services/paymentService");
 
-exports.bookEvent = async (req, res) => {
+exports.createBooking = async (req, res) => {
   const { name, email, phone, eventId } = req.body;
 
   try {
@@ -39,14 +39,13 @@ exports.bookEvent = async (req, res) => {
       await sendSMSConfirmation(phone, event, paymentLink);
     }
 
-    res
-      .status(200)
-      .json({
-        message:
-          "Booking successful. Check your email or text for payment details.",
-      });
+    res.status(201).json({
+      success: true,
+      message:
+        "Booking successful. Check your email or text for payment details.",
+    });
   } catch (error) {
     console.error("Booking error:", error);
-    res.status(500).json({ message: "Failed to book event" });
+    res.status(500).json({ success: false, message: "Failed to book event" });
   }
 };
