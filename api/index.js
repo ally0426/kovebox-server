@@ -17,6 +17,7 @@ const PORT = process.env.PORT || 5000;
 
 // Log requests for debugging
 app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
   console.log(`${req.method} ${req.url} - ${req.ip}`);
   next();
 });
