@@ -44,8 +44,7 @@ const cheerio = require("cheerio");
 // ];
 
 // Define the URL for scraping Meetup
-const meetupUrl =
-  "https://www.meetup.com/find/events/?keywords=korean&allMeetups=true";
+// const meetupUrl = "https://www.meetup.com/find/events/?keywords=korean&allMeetups=true";
 
 // List of Eventbrite URLs to scrape
 const eventbriteUrls = [
@@ -58,10 +57,10 @@ const scrapeEventbrite = async (req, res) => {
   try {
     console.log("Launching Puppeteer...");
     const browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      headless: true,
+      // args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      // headless: true,
     });
-
+    console.log("Browser launched successfully");
     const allActivities = [];
 
     // Iterate over each URL to scrape data
@@ -70,9 +69,9 @@ const scrapeEventbrite = async (req, res) => {
       console.log(`Navigating to: ${url}`);
 
       // Set User-Agent to avoid being blocked
-      await page.setUserAgent(
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
-      );
+      // await page.setUserAgent(
+      //   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
+      // );
 
       await page.goto(url, {
         waitUntil: "domcontentloaded",
@@ -146,35 +145,35 @@ const scrapeEventbrite = async (req, res) => {
 };
 
 // Function to scrape Meetup activities
-const scrapeMeetup = async (req, res) => {
-  try {
-    const { data } = await axios.get(meetupUrl);
-    const $ = cheerio.load(data);
-    const activities = [];
+// const scrapeMeetup = async (req, res) => {
+//   try {
+//     const { data } = await axios.get(meetupUrl);
+//     const $ = cheerio.load(data);
+//     const activities = [];
 
-    $(".eventCard--link").each((index, element) => {
-      const title = $(element).find(".text--labelSecondary").text().trim();
-      const date = $(element).find(".eventTimeDisplay-startDate").text().trim();
-      const location = $(element).find(".venueDisplay-venue").text().trim();
-      const link = $(element).attr("href");
+//     $(".eventCard--link").each((index, element) => {
+//       const title = $(element).find(".text--labelSecondary").text().trim();
+//       const date = $(element).find(".eventTimeDisplay-startDate").text().trim();
+//       const location = $(element).find(".venueDisplay-venue").text().trim();
+//       const link = $(element).attr("href");
 
-      activities.push({
-        title,
-        date,
-        location,
-        link: `https://www.meetup.com${link}`,
-      });
-    });
+//       activities.push({
+//         title,
+//         date,
+//         location,
+//         link: `https://www.meetup.com${link}`,
+//       });
+//     });
 
-    res.json({ success: true, data: activities });
-  } catch (error) {
-    console.error("Error fetching data from Meetup:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Error fetching data from Meetup" });
-  }
-};
+//     res.json({ success: true, data: activities });
+//   } catch (error) {
+//     console.error("Error fetching data from Meetup:", error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error fetching data from Meetup" });
+//   }
+// };
 
-// module.exports = { scrapeEventbrite };
+module.exports = { scrapeEventbrite };
 
-module.exports = { scrapeEventbrite, scrapeMeetup };
+// module.exports = { scrapeEventbrite, scrapeMeetup };
