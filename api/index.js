@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const scrapingRoutes = require("./routes/scrapingRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
+const userRoutes = require("./routes/userRoutes");
 const eventRoutes = require("./routes/eventRoutes");
 const organizerRoutes = require("./routes/organizerRoutes");
 const adminRoutes = require("./routes/adminRoutes");
@@ -54,7 +55,7 @@ app.use("/api/organizer", organizerRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/events", eventRoutes); // Plural form for REST convention
 app.use("api/book", bookingRoutes);
-// app.use("/api/booking", bookingRoutes);
+app.use("/api/user", userRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found with 404 ERROR" });

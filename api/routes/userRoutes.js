@@ -1,15 +1,16 @@
 const express = require("express");
 const {
-  createBooking,
-  bookEvent,
+  // createBooking, // this is for bookingRoutes and bookingController for general booking
+  userBookEvent,
   getUserBookings,
   getEventDetails,
 } = require("../controllers/userController");
+
 const { protect } = require("../middlewares/authMiddleware");
 const router = express.Router();
 
 // Route to book an event
-router.route("/book").post(createBooking);
+router.route("/book").post(userBookEvent);
 
 // Route to get a user's bookings (protected route)
 router.route("/bookings").get(protect, getUserBookings);
