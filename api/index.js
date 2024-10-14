@@ -53,7 +53,8 @@ app.use("/api", scrapingRoutes);
 app.use("/api/organizer", organizerRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/events", eventRoutes); // Plural form for REST convention
-app.use("/api/booking", bookingRoutes);
+app.use("api/book", bookingRoutes);
+// app.use("/api/booking", bookingRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use((req, res) => {
   res.status(404).json({ message: "Route not found with 404 ERROR" });
