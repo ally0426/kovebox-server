@@ -51,3 +51,4 @@ const createBooking = async (req, res) => {
 };
 
 module.exports = { createBooking };
+// changed the file name from bookingcontroller.js to bookingController.js
