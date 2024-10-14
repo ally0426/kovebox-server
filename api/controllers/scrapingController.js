@@ -1,6 +1,7 @@
 // const axios = require("axios");
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
+const chromium = require("chrome-aws-lambda");
 
 // const urls = {
 //   eventbrite: {
@@ -54,9 +55,14 @@ const eventbriteUrls = [
 ];
 
 const scrapeEventbrite = async (req, res) => {
+  let browswer;
   try {
     console.log("Launching Puppeteer...");
-    const browser = await puppeteer.launch({
+    browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+      headless: true,
       // args: ["--no-sandbox", "--disable-setuid-sandbox"],
       // headless: true,
     });
@@ -73,10 +79,13 @@ const scrapeEventbrite = async (req, res) => {
       //   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
       // );
 
-      await page.goto(url, {
-        waitUntil: "domcontentloaded",
-        timeout: 60000,
-      });
+      await page.goto(
+        url
+        //   {
+        //   waitUntil: "domcontentloaded",
+        //   timeout: 60000,
+        // }
+      );
 
       console.log(`Page loaded successfully for: ${url}`);
 
