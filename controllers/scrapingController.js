@@ -1,7 +1,7 @@
 // const axios = require("axios");
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
-const chromium = require("chrome-aws-lambda");
+// const chromium = require("chrome-aws-lambda");
 
 // const urls = {
 //   eventbrite: {
@@ -58,14 +58,24 @@ const scrapeEventbrite = async (req, res) => {
   let browswer;
   try {
     console.log("Launching Puppeteer...");
-    browser = await chromium.puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath,
+    browser = await puppeteer.launch({
       headless: true,
+      executablePath: "/usr/bin/google-chrome",
+      args: [
+        "--no-sandbox",
+        "--headless",
+        "--disable-gpu",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+      ],
+      // args: chromium.args,
+      // defaultViewport: chromium.defaultViewport,
+      // executablePath: await chromium.executablePath,
+      // headless: true,
       // args: ["--no-sandbox", "--disable-setuid-sandbox"],
       // headless: true,
     });
+
     console.log("Browser launched successfully");
     const allActivities = [];
 
