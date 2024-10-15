@@ -1,5 +1,5 @@
 const express = require("express");
-const { createBooking } = require("../controllers./bookingController");
+const { createBooking } = require("../controllers/bookingController");
 const router = express.Router();
 
 // Route for booking an event without login
