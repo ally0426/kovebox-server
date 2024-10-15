@@ -35,6 +35,7 @@ app.use(
     // origin: "http://localhost:3000",
     origin: "https://kovebox-client.onrender.com",
     // ["https://kovebox-client.onrender.com", process.env.CLIENT_URL],
+    allowedHeaders: "Content-Type",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // Enable this if your API uses cookies
   })
