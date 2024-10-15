@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 5000;
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", [
     process.env.CLIENT_URL,
-    "https://kovebox-client.onrender.app",
+    "https://kovebox-client.onrender.com",
   ]);
   console.log(`${req.method} ${req.url} - ${req.ip}`);
   next();
@@ -30,9 +30,9 @@ app.use((req, res, next) => {
 app.use(
   cors({
     //origin: "*",
-    // origin: ["https://kovebox-client.onrender.app"],
+    // origin: ["https://kovebox-client.onrender.com"],
     // origin: "http://localhost:3000",
-    origin: ["https://kovebox-client.onrender.app", process.env.CLIENT_URL],
+    origin: ["https://kovebox-client.onrender.com", process.env.CLIENT_URL],
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // Enable this if your API uses cookies
   })
