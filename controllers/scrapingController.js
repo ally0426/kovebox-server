@@ -104,8 +104,11 @@ const scrapeEventbrite = async (req, res) => {
       }
     }
 
-    // Send all events as a response
-    res.json(allActivities);
+    // After gathering all activities, create the final activities array
+    const activities = [...allActivities];
+
+    // Send the activities array as a response
+    res.json(activities);
   } catch (error) {
     console.error("Error scraping Eventbrite:", error);
     res.status(500).json({ message: "Error scraping Eventbrite" });
