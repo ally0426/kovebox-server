@@ -60,7 +60,8 @@ const scrapeEventbrite = async (req, res) => {
     console.log("Launching Puppeteer...");
     browser = await puppeteer.launch({
       headless: true,
-      executablePath: "/usr/bin/google-chrome",
+      executablePath:
+        "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
       args: [
         "--no-sandbox",
         "--headless",
