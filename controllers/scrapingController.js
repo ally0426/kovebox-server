@@ -55,20 +55,19 @@ const eventbriteUrls = [
 ];
 
 const scrapeEventbrite = async (req, res) => {
-  let browswer;
   try {
     console.log("Launching Puppeteer...");
-    browser = await puppeteer.launch({
-      headless: true,
-      // executablePath:
-      //   "C:/Program Files (x86)/Google/Chrome/Application/chrome.exe",
-      // args: [
-      //   "--no-sandbox",
-      //   "--headless",
-      //   "--disable-gpu",
-      //   "--disable-setuid-sandbox",
-      //   "--disable-dev-shm-usage",
-      // ],
+    const browser = await puppeteer.launch({
+      executablePath:
+        "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+      headless: false,
+      args: [
+        "--no-sandbox",
+        "--headless",
+        "--disable-gpu",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+      ],
       // args: chromium.args,
       // defaultViewport: chromium.defaultViewport,
       // executablePath: await chromium.executablePath,
