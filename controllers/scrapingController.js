@@ -1,5 +1,5 @@
 // const axios = require("axios");
-const puppeteer = require("puppeteer");
+// const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
 const axios = require("axios");
 // const chromium = require("chrome-aws-lambda");
@@ -68,7 +68,7 @@ const scrapeEventbrite = async (req, res) => {
 
       try {
         // Evaluate the page content for scraping
-        const activityElements = document.querySelectorAll('a[href*="/e/"]');
+        const activityElements = $('a[href*="/e/"]');
         const activities = [];
 
         activityElements.forEach((element) => {
