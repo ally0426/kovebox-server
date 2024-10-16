@@ -117,7 +117,6 @@ const scrapeEventbrite = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error("Error fetching data from Eventbrite with Puppeteer:", error);
     res.status(500).json({
       success: false,
       message: "Error fetching data from Eventbrite",
