@@ -112,8 +112,6 @@ const scrapeEventbrite = async (req, res) => {
   }
 };
 
-module.exports = { scrapeEventbrite };
-
 // Function to scrape Meetup activities
 // const scrapeMeetup = async (req, res) => {
 //   try {
