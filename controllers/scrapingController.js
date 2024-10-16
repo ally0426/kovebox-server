@@ -1,6 +1,7 @@
 // const axios = require("axios");
 const puppeteer = require("puppeteer");
 const cheerio = require("cheerio");
+const axios = require("axios");
 // const chromium = require("chrome-aws-lambda");
 
 // const urls = {
@@ -56,51 +57,17 @@ const eventbriteUrls = [
 
 const scrapeEventbrite = async (req, res) => {
   try {
-    console.log("Launching Puppeteer....");
-    const browser = await puppeteer.launch({
-      executablePath:
-        "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--headless",
-        "--disable-gpu",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-      ],
-      // args: chromium.args,
-      // defaultViewport: chromium.defaultViewport,
-      // executablePath: await chromium.executablePath,
-      // headless: true,
-      // args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      // headless: true,
-    });
-
-    console.log("Browser launched successfully");
     const allActivities = [];
 
     // Iterate over each URL to scrape data
     for (const url of eventbriteUrls) {
-      const page = await browser.newPage();
       console.log(`Navigating to: ${url}`);
 
-      // Set User-Agent to avoid being blocked
-      // await page.setUserAgent(
-      //   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36"
-      // );
+      const { data } = await axios.get(url);
+      const $ = cheerio.load(data);
 
-      await page.goto(
-        url
-        //   {
-        //   waitUntil: "domcontentloaded",
-        //   timeout: 60000,
-        // }
-      );
-
-      console.log(`Page loaded successfully for: ${url}`);
-
-      // Evaluate the page content for scraping
-      const activities = await page.evaluate(() => {
+      try {
+        // Evaluate the page content for scraping
         const activityElements = document.querySelectorAll('a[href*="/e/"]');
         const activities = [];
 
@@ -132,27 +99,23 @@ const scrapeEventbrite = async (req, res) => {
                 : `https://www.eventbrite.com${link}`,
             });
           }
+          return activities;
         });
 
-        return activities;
+        console.log(`Scraped ${activities.length} activities from: ${url}`);
+        allActivities.push(...activities);
+      } catch (error) {
+        console.error(`Error scraping Eventbrite from ${url}:`, error);
+      }
+
+      console.log(`Total activities scraped: ${allActivities.length}`);
+
+      // Return the combined scraped activities
+      res.json({
+        success: true,
+        data: allActivities,
       });
-
-      console.log(`Scraped ${activities.length} activities from: ${url}`);
-      allActivities.push(...activities);
-
-      // Close the page to free resources
-      await page.close();
     }
-
-    await browser.close();
-
-    console.log(`Total activities scraped: ${allActivities.length}`);
-
-    // Return the combined scraped activities
-    res.json({
-      success: true,
-      data: allActivities,
-    });
   } catch (error) {
     console.error("Error fetching data from Eventbrite with Puppeteer:", error);
     res.status(500).json({
