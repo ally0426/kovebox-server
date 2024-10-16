@@ -55,75 +55,64 @@ const eventbriteUrls = [
   "https://www.eventbrite.com/d/online/korean-cooking/",
 ];
 
+// Function to scrape multiple Eventbrite URLs
 const scrapeEventbrite = async (req, res) => {
   try {
     const allActivities = [];
 
-    // Iterate over each URL to scrape data
+    // Loop through each URL and scrape the data
     for (const url of eventbriteUrls) {
-      console.log(`Navigating to: ${url}`);
-
-      const { data } = await axios.get(url);
-      const $ = cheerio.load(data);
-
       try {
-        // Evaluate the page content for scraping
+        // Fetch the HTML of the page
+        const { data } = await axios.get(url);
+
+        // Load the HTML into Cheerio
+        const $ = cheerio.load(data);
+
+        // Select all anchor tags with href containing "/e/" (Eventbrite event links)
         const activityElements = $('a[href*="/e/"]');
-        const activities = [];
 
-        activityElements.forEach((element) => {
-          const title = element.innerText.trim();
-          const link = element.href;
+        // Iterate over each event link found
+        activityElements.each((i, element) => {
+          const title = $(element)
+            .find(".eds-event-card__formatted-name--is-clamped")
+            .text()
+            .trim();
+          const date = $(element)
+            .find(".eds-event-card-content__sub-content .eds-text-bs--fixed")
+            .text()
+            .trim();
+          const location = $(element)
+            .find('[data-spec="event-card__formatted-location"]')
+            .text()
+            .trim();
+          const link = $(element).attr("href"); // Get the link directly
 
-          // Extract the location using the 'data-event-location' attribute
-          const location =
-            element.getAttribute("data-event-location") || "Online";
-
-          // Find the parent container of the <a> element to access the date info
-          const parentElement = element.parentElement;
-          const dateElement = parentElement.querySelector("p");
-
-          // Extract date if available
-          const date = dateElement
-            ? dateElement.innerText.trim()
-            : "Date not provided";
-
-          // Only add the activity if title and link are present
-          if (title && link) {
-            activities.push({
+          // Add the event to the list if all required data is available
+          if (title && date && location && link) {
+            allActivities.push({
               title,
               date,
               location,
-              link: link.startsWith("http")
-                ? link
-                : `https://www.eventbrite.com${link}`,
+              link: `https://www.eventbrite.com${link}`, // Ensure full URL
             });
           }
-          return activities;
         });
-
-        console.log(`Scraped ${activities.length} activities from: ${url}`);
-        allActivities.push(...activities);
       } catch (error) {
         console.error(`Error scraping Eventbrite from ${url}:`, error);
+        // Continue with the next URL even if one fails
       }
-
-      console.log(`Total activities scraped: ${allActivities.length}`);
-
-      // Return the combined scraped activities
-      res.json({
-        success: true,
-        data: allActivities,
-      });
     }
+
+    // Send all events as a response
+    res.json(allActivities);
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error fetching data from Eventbrite",
-      error: error.message,
-    });
+    console.error("Error scraping Eventbrite:", error);
+    res.status(500).json({ message: "Error scraping Eventbrite" });
   }
 };
+
+module.exports = { scrapeEventbrite };
 
 // Function to scrape Meetup activities
 // const scrapeMeetup = async (req, res) => {
