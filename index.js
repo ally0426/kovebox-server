@@ -1,29 +1,13 @@
 const express = require("express");
-<<<<<<< HEAD:api/index.js
 const dotenv = require("dotenv");
 const authRoutes = require("./routes/authRoutes");
 const scrapingController = require("./controllers/scrapingController");
 const cors = require("cors");
 dotenv.config();
-=======
-const mongoose = require("mongoose");
-const scrapingRoutes = require("./routes/scrapingRoutes");
-const bookingRoutes = require("./routes/bookingRoutes");
-const userRoutes = require("./routes/userRoutes");
-const eventRoutes = require("./routes/eventRoutes");
-const organizerRoutes = require("./routes/organizerRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-const paymentRoutes = require("./routes/paymentRoutes");
-
-const cors = require("cors"); // For cross-origin requests
-const helmet = require("helmet"); // For security headers
-const twilio = require("twilio");
->>>>>>> 24ab25dc170f81a2026cf6f7d430bcf6ee7f2a5e:index.js
 
 const app = express();
 app.use(express.json());
 
-<<<<<<< HEAD:api/index.js
 // OAuth routes for Google
 app.use("/api/auth", authRoutes);
 
@@ -51,17 +35,15 @@ app.get("/api/events", async (req, res) => {
     console.error("Error fetching combined events:", error);
     res.status(500).json({ error: "Error fetching combined events" });
   }
-=======
+
 // Log requests for debugging
 app.use((req, res, next) => {
   res.header(
     "Access-Control-Allow-Origin",
-    "https://kovebox-client.onrender.com"
-    // [ process.env.CLIENT_URL, "https://kovebox-client.onrender.com"]
+     ["https://kovebox.com", "https://www.kovebox.com"]
   );
   console.log(`${req.method} ${req.url} - ${req.ip}`);
   next();
->>>>>>> 24ab25dc170f81a2026cf6f7d430bcf6ee7f2a5e:index.js
 });
 
 // Start the server
@@ -70,23 +52,14 @@ const PORT = process.env.PORT || 5000;
 // Configure CORS
 app.use(
   cors({
-<<<<<<< HEAD:api/index.js
+
     origin: ["https://kovebox.com", "https://www.kovebox.com"],
-=======
-    //origin: "*",
-    // origin: ["https://kovebox-client.onrender.com"],
-    // origin: "http://localhost:3000",
-    origin: "https://kovebox-client.onrender.com",
-    // ["https://kovebox-client.onrender.com", process.env.CLIENT_URL],
     allowedHeaders: "Content-Type",
->>>>>>> 24ab25dc170f81a2026cf6f7d430bcf6ee7f2a5e:index.js
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true, // Enable this if your API uses cookies
   })
 );
 
-<<<<<<< HEAD:api/index.js
-=======
 // Initialize Twilio client
 const client = twilio(
   process.env.TWILIO_ACCOUNT_SID,
@@ -164,7 +137,6 @@ app.use((err, req, res, next) => {
 });
 
 // Start the server
->>>>>>> 24ab25dc170f81a2026cf6f7d430bcf6ee7f2a5e:index.js
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
