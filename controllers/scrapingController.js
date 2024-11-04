@@ -1,10 +1,19 @@
+<<<<<<< HEAD:api/controllers/scrapingController.js
 const axios = require("axios");
+=======
+// const axios = require("axios");
+// const puppeteer = require("puppeteer");
+const cheerio = require("cheerio");
+const axios = require("axios");
+// const chromium = require("chrome-aws-lambda");
+>>>>>>> 24ab25dc170f81a2026cf6f7d430bcf6ee7f2a5e:controllers/scrapingController.js
 
 // Function to fetch Google Calendar events
 const fetchGoogleEvents = async (accessToken, lat, lng) => {
   const calendarId = "primary";
   const googleCalendarUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
 
+<<<<<<< HEAD:api/controllers/scrapingController.js
   try {
     const response = await axios.get(googleCalendarUrl, {
       headers: {
@@ -29,6 +38,86 @@ const fetchGoogleEvents = async (accessToken, lat, lng) => {
   } catch (error) {
     console.error("Error fetching Google Calendar events:", error);
     return [];
+=======
+// Define the URL for scraping Eventbrite
+// const eventbriteUrl = [
+//   "https://www.eventbrite.com/d/online/korea/",
+//   "https://www.eventbrite.com/d/online/korean/",
+//   "https://www.eventbrite.com/d/online/k-pop/",
+//   "https://www.eventbrite.com/d/online/korean-cooking/",
+//   "https://www.eventbrite.com/d/online/k-pop-dance/",
+//   "https://www.eventbrite.com/d/online/korean-martial-art/",
+//   "https://www.eventbrite.com/d/online/korean-art/",
+// ];
+
+// Define the URL for scraping Meetup
+// const meetupUrl = "https://www.meetup.com/find/events/?keywords=korean&allMeetups=true";
+
+// List of Eventbrite URLs to scrape
+const eventbriteUrls = [
+  "https://www.eventbrite.com/d/online/korean/",
+  "https://www.eventbrite.com/d/online/kpop/",
+  "https://www.eventbrite.com/d/online/korean-cooking/",
+];
+
+// Function to scrape multiple Eventbrite URLs
+const scrapeEventbrite = async (req, res) => {
+  try {
+    const allActivities = [];
+
+    // Loop through each URL and scrape the data
+    for (const url of eventbriteUrls) {
+      try {
+        // Fetch the HTML of the page
+        const { data } = await axios.get(url);
+
+        // Load the HTML into Cheerio
+        const $ = cheerio.load(data);
+
+        // Select all anchor tags with href containing "/e/" (Eventbrite event links)
+        const activityElements = $('a[href*="/e/"]');
+
+        // Iterate over each event link found
+        activityElements.each((i, element) => {
+          const title = $(element)
+            .find(".eds-event-card__formatted-name--is-clamped")
+            .text()
+            .trim();
+          const date = $(element)
+            .find(".eds-event-card-content__sub-content .eds-text-bs--fixed")
+            .text()
+            .trim();
+          const location = $(element)
+            .find('[data-spec="event-card__formatted-location"]')
+            .text()
+            .trim();
+          const link = $(element).attr("href"); // Get the link directly
+
+          // Add the event to the list if all required data is available
+          if (title && date && location && link) {
+            allActivities.push({
+              title,
+              date,
+              location,
+              link: `https://www.eventbrite.com${link}`, // Ensure full URL
+            });
+          }
+        });
+      } catch (error) {
+        console.error(`Error scraping Eventbrite from ${url}:`, error);
+        // Continue with the next URL even if one fails
+      }
+    }
+
+    // After gathering all activities, create the final activities array
+    const activities = [...allActivities];
+
+    // Send the activities array as a response
+    res.json(activities);
+  } catch (error) {
+    console.error("Error scraping Eventbrite:", error);
+    res.status(500).json({ message: "Error scraping Eventbrite" });
+>>>>>>> 24ab25dc170f81a2026cf6f7d430bcf6ee7f2a5e:controllers/scrapingController.js
   }
 };
 

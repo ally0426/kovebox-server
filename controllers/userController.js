@@ -3,7 +3,7 @@ const Booking = require("../models/bookingModel");
 const { sendSms } = require("../services/twilioService");
 
 // Book an event
-exports.bookEvent = async (req, res) => {
+exports.userBookEvent = async (req, res) => {
   const { name, email, phone, eventId } = req.body;
 
   try {

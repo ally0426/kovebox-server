@@ -4,7 +4,7 @@ const { sendBookingConfirmation } = require("../services/emailService");
 const { sendSMSConfirmation } = require("../services/smsService");
 const { createPaymentLink } = require("../services/paymentService");
 
-exports.createBooking = async (req, res) => {
+const createBooking = async (req, res) => {
   const { name, email, phone, eventId } = req.body;
 
   try {
@@ -49,3 +49,6 @@ exports.createBooking = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to book event" });
   }
 };
+
+module.exports = { createBooking };
+// changed the file name from bookingcontroller.js to bookingController.js
