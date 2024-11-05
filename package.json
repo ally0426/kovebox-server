@@ -21,6 +21,7 @@
     "mongoose": "^5.12.14",
     "nodemailer": "^6.6.0",
     "puppeteer": "^23.5.3",
+    "puppeteer-core": "^23.7.0",
     "stripe": "^17.1.0",
     "twilio": "^5.3.3"
   },
