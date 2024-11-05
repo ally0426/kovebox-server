@@ -1,30 +1,18 @@
-<<<<<<< HEAD:api/controllers/scrapingController.js
+//1.
 const axios = require("axios");
-=======
-// const axios = require("axios");
-// const puppeteer = require("puppeteer");
-const cheerio = require("cheerio");
-const axios = require("axios");
-// const chromium = require("chrome-aws-lambda");
->>>>>>> 24ab25dc170f81a2026cf6f7d430bcf6ee7f2a5e:controllers/scrapingController.js
 
-// Function to fetch Google Calendar events
-const fetchGoogleEvents = async (accessToken, lat, lng) => {
-  const calendarId = "primary";
+// Function to fetch Google Calendar events from a public calendar using an API key
+const fetchGoogleEvents = async (calendarId, apiKey) => {
   const googleCalendarUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
 
-<<<<<<< HEAD:api/controllers/scrapingController.js
   try {
     const response = await axios.get(googleCalendarUrl, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
       params: {
+        key: apiKey,
         maxResults: 10,
         singleEvents: true,
         orderBy: "startTime",
         timeMin: new Date().toISOString(),
-        location: `${lat},${lng}`,
       },
     });
 
@@ -38,86 +26,6 @@ const fetchGoogleEvents = async (accessToken, lat, lng) => {
   } catch (error) {
     console.error("Error fetching Google Calendar events:", error);
     return [];
-=======
-// Define the URL for scraping Eventbrite
-// const eventbriteUrl = [
-//   "https://www.eventbrite.com/d/online/korea/",
-//   "https://www.eventbrite.com/d/online/korean/",
-//   "https://www.eventbrite.com/d/online/k-pop/",
-//   "https://www.eventbrite.com/d/online/korean-cooking/",
-//   "https://www.eventbrite.com/d/online/k-pop-dance/",
-//   "https://www.eventbrite.com/d/online/korean-martial-art/",
-//   "https://www.eventbrite.com/d/online/korean-art/",
-// ];
-
-// Define the URL for scraping Meetup
-// const meetupUrl = "https://www.meetup.com/find/events/?keywords=korean&allMeetups=true";
-
-// List of Eventbrite URLs to scrape
-const eventbriteUrls = [
-  "https://www.eventbrite.com/d/online/korean/",
-  "https://www.eventbrite.com/d/online/kpop/",
-  "https://www.eventbrite.com/d/online/korean-cooking/",
-];
-
-// Function to scrape multiple Eventbrite URLs
-const scrapeEventbrite = async (req, res) => {
-  try {
-    const allActivities = [];
-
-    // Loop through each URL and scrape the data
-    for (const url of eventbriteUrls) {
-      try {
-        // Fetch the HTML of the page
-        const { data } = await axios.get(url);
-
-        // Load the HTML into Cheerio
-        const $ = cheerio.load(data);
-
-        // Select all anchor tags with href containing "/e/" (Eventbrite event links)
-        const activityElements = $('a[href*="/e/"]');
-
-        // Iterate over each event link found
-        activityElements.each((i, element) => {
-          const title = $(element)
-            .find(".eds-event-card__formatted-name--is-clamped")
-            .text()
-            .trim();
-          const date = $(element)
-            .find(".eds-event-card-content__sub-content .eds-text-bs--fixed")
-            .text()
-            .trim();
-          const location = $(element)
-            .find('[data-spec="event-card__formatted-location"]')
-            .text()
-            .trim();
-          const link = $(element).attr("href"); // Get the link directly
-
-          // Add the event to the list if all required data is available
-          if (title && date && location && link) {
-            allActivities.push({
-              title,
-              date,
-              location,
-              link: `https://www.eventbrite.com${link}`, // Ensure full URL
-            });
-          }
-        });
-      } catch (error) {
-        console.error(`Error scraping Eventbrite from ${url}:`, error);
-        // Continue with the next URL even if one fails
-      }
-    }
-
-    // After gathering all activities, create the final activities array
-    const activities = [...allActivities];
-
-    // Send the activities array as a response
-    res.json(activities);
-  } catch (error) {
-    console.error("Error scraping Eventbrite:", error);
-    res.status(500).json({ message: "Error scraping Eventbrite" });
->>>>>>> 24ab25dc170f81a2026cf6f7d430bcf6ee7f2a5e:controllers/scrapingController.js
   }
 };
 
@@ -140,10 +48,13 @@ const fetchEventbriteEvents = async (lat, lng) => {
   }
 };
 
-// Function to fetch and combine events from both Google and Eventbrite
-const fetchAllEvents = async (googleAccessToken, lat, lng) => {
+// Function to fetch combined events from Google and Eventbrite
+const fetchAllEvents = async (lat, lng) => {
+  const calendarId = "your_public_calendar_id@group.calendar.google.com"; // Replace with your public calendar ID
+  const apiKey = process.env.GOOGLE_API_KEY; // Google API Key stored in .env
+
   const [googleEvents, eventbriteEvents] = await Promise.all([
-    fetchGoogleEvents(googleAccessToken, lat, lng),
+    fetchGoogleEvents(calendarId, apiKey),
     fetchEventbriteEvents(lat, lng),
   ]);
 
@@ -151,6 +62,72 @@ const fetchAllEvents = async (googleAccessToken, lat, lng) => {
 };
 
 module.exports = { fetchAllEvents };
+
+// 2.
+// const axios = require("axios");
+
+// // Function to fetch Google Calendar events
+// const fetchGoogleEvents = async (accessToken, lat, lng) => {
+//   const calendarId = "primary";
+//   const googleCalendarUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
+
+//   try {
+//     const response = await axios.get(googleCalendarUrl, {
+//       headers: {
+//         Authorization: `Bearer ${accessToken}`,
+//       },
+//       params: {
+//         maxResults: 10,
+//         singleEvents: true,
+//         orderBy: "startTime",
+//         timeMin: new Date().toISOString(),
+//         location: `${lat},${lng}`,
+//       },
+//     });
+
+//     return response.data.items.map((event) => ({
+//       source: "Google Calendar",
+//       title: event.summary,
+//       date: event.start.dateTime || event.start.date,
+//       location: event.location || "Online",
+//       link: event.htmlLink,
+//     }));
+//   } catch (error) {
+//     console.error("Error fetching Google Calendar events:", error);
+//     return [];
+//   }
+// };
+
+// // Function to fetch Eventbrite events
+// const fetchEventbriteEvents = async (lat, lng) => {
+//   const eventbriteUrl = `https://www.eventbriteapi.com/v3/events/search/?location.latitude=${lat}&location.longitude=${lng}&token=${process.env.EVENTBRITE_API_TOKEN}`;
+
+//   try {
+//     const response = await axios.get(eventbriteUrl);
+//     return response.data.events.map((event) => ({
+//       source: "Eventbrite",
+//       title: event.name.text,
+//       date: event.start.local,
+//       location: event.venue?.address.localized_address_display || "Online",
+//       link: event.url,
+//     }));
+//   } catch (error) {
+//     console.error("Error fetching Eventbrite events:", error);
+//     return [];
+//   }
+// };
+
+// // Function to fetch and combine events from both Google and Eventbrite
+// const fetchAllEvents = async (googleAccessToken, lat, lng) => {
+//   const [googleEvents, eventbriteEvents] = await Promise.all([
+//     fetchGoogleEvents(googleAccessToken, lat, lng),
+//     fetchEventbriteEvents(lat, lng),
+//   ]);
+
+//   return [...googleEvents, ...eventbriteEvents];
+// };
+
+// module.exports = { fetchAllEvents };
 
 // const axios = require("axios");
 
@@ -250,6 +227,7 @@ module.exports = { fetchAllEvents };
 
 // module.exports = { fetchActivities };
 
+// 3.
 // // const puppeteer = require("puppeteer");
 
 // // // URLs for Eventbrite and Meetup to scrape
