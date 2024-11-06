@@ -1,67 +1,121 @@
-//1.
 const axios = require("axios");
 
-// Function to fetch Google Calendar events from a public calendar using an API key
-const fetchGoogleEvents = async (calendarId, apiKey) => {
-  const googleCalendarUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
+// Function to fetch Google Events based on keywords and location
+const fetchGoogleEvents = async (keywords, location) => {
+  const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY;
+  const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
+
+  // Combine keywords with "events" and location to create a query string
+  const query = `${keywords.join(" OR ")} events in ${location}`;
+
+  const googleSearchUrl = `https://www.googleapis.com/customsearch/v1`;
 
   try {
-    const response = await axios.get(googleCalendarUrl, {
+    const response = await axios.get(googleSearchUrl, {
       params: {
         key: apiKey,
-        maxResults: 10,
-        singleEvents: true,
-        orderBy: "startTime",
-        timeMin: new Date().toISOString(),
+        cx: searchEngineId,
+        q: query,
+        num: 10, // Limit to 10 results
       },
     });
 
-    return response.data.items.map((event) => ({
-      source: "Google Calendar",
-      title: event.summary,
-      date: event.start.dateTime || event.start.date,
-      location: event.location || "Online",
-      link: event.htmlLink,
+    // Map results to a simplified format
+    const events = response.data.items.map((item) => ({
+      source: "Google Search",
+      title: item.title,
+      snippet: item.snippet,
+      link: item.link,
     }));
+
+    console.log("Fetched Google Events:", events);
+    return events;
   } catch (error) {
-    console.error("Error fetching Google Calendar events:", error);
+    console.error("Error fetching Google Events:", error);
     return [];
   }
 };
 
-// Function to fetch Eventbrite events
-const fetchEventbriteEvents = async (lat, lng) => {
-  const eventbriteUrl = `https://www.eventbriteapi.com/v3/events/search/?location.latitude=${lat}&location.longitude=${lng}&token=${process.env.EVENTBRITE_API_TOKEN}`;
-
-  try {
-    const response = await axios.get(eventbriteUrl);
-    return response.data.events.map((event) => ({
-      source: "Eventbrite",
-      title: event.name.text,
-      date: event.start.local,
-      location: event.venue?.address.localized_address_display || "Online",
-      link: event.url,
-    }));
-  } catch (error) {
-    console.error("Error fetching Eventbrite events:", error);
-    return [];
-  }
-};
-
-// Function to fetch combined events from Google and Eventbrite
+// Main function to fetch all events, only using Google Events
 const fetchAllEvents = async (lat, lng) => {
-  const calendarId = "your_public_calendar_id@group.calendar.google.com"; // Replace with your public calendar ID
-  const apiKey = process.env.GOOGLE_API_KEY; // Google API Key stored in .env
+  const keywords = ["korean", "kpop", "korean food"];
 
-  const [googleEvents, eventbriteEvents] = await Promise.all([
-    fetchGoogleEvents(calendarId, apiKey),
-    fetchEventbriteEvents(lat, lng),
-  ]);
+  // Convert lat/lng to a general location (e.g., "Los Angeles, CA")
+  const location = lat && lng ? `${lat},${lng}` : "Los Angeles, CA"; // Default location
 
-  return [...googleEvents, ...eventbriteEvents];
+  const googleEvents = await fetchGoogleEvents(keywords, location);
+
+  // Return only the Google Events results as the event data
+  return googleEvents;
 };
 
 module.exports = { fetchAllEvents };
+
+// //1.
+// const axios = require("axios");
+
+// // Function to fetch Google Calendar events from a public calendar using an API key
+// const fetchGoogleEvents = async (calendarId, apiKey) => {
+//   const googleCalendarUrl = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
+
+//   try {
+//     const response = await axios.get(googleCalendarUrl, {
+//       params: {
+//         key: apiKey,
+//         maxResults: 10,
+//         singleEvents: true,
+//         orderBy: "startTime",
+//         timeMin: new Date().toISOString(),
+//       },
+//     });
+
+//     return response.data.items.map((event) => ({
+//       source: "Google Calendar",
+//       title: event.summary,
+//       date: event.start.dateTime || event.start.date,
+//       location: event.location || "Online",
+//       link: event.htmlLink,
+//     }));
+//   } catch (error) {
+//     console.error("Error fetching Google Calendar events:", error);
+//     return [];
+//   }
+// };
+
+// // Function to fetch Eventbrite events
+// const fetchEventbriteEvents = async (lat, lng) => {
+//   const eventbriteUrl = `https://www.eventbriteapi.com/v3/events/search/?location.latitude=${lat}&location.longitude=${lng}&token=${process.env.EVENTBRITE_API_TOKEN}`;
+
+//   try {
+//     const response = await axios.get(eventbriteUrl);
+//     return response.data.events.map((event) => ({
+//       source: "Eventbrite",
+//       title: event.name.text,
+//       date: event.start.local,
+//       location: event.venue?.address.localized_address_display || "Online",
+//       link: event.url,
+//     }));
+//   } catch (error) {
+//     console.error("Error fetching Eventbrite events:", error);
+//     return [];
+//   }
+// };
+
+// // Function to fetch combined events from Google and Eventbrite
+// const fetchAllEvents = async (lat, lng) => {
+//   const calendarId = "your_public_calendar_id@group.calendar.google.com"; // Replace with your public calendar ID
+//   const apiKey = process.env.GOOGLE_API_KEY; // Google API Key stored in .env
+
+//   const googleEvents = await fetchGoogleEvents(calendarId, apiKey);
+//   const eventbriteEvents = await fetchEventbriteEvents(lat, lng);
+
+//   console.log("Google Events: ", googleEvents);
+//   console.log("Eventbrite Events: ", eventbriteEvents);
+
+//   return [...googleEvents, ...eventbriteEvents];
+// };
+
+// module.exports = { fetchAllEvents };
 
 // 2.
 // const axios = require("axios");
