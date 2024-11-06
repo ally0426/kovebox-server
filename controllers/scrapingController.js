@@ -38,7 +38,7 @@ const fetchGoogleEvents = async (keywords, location) => {
 
 // Main function to fetch all events, only using Google Events
 const fetchAllEvents = async (lat, lng) => {
-  const keywords = ["korean", "kpop", "korean food"];
+  const keywords = ["korean event", "kpop event", "korean food event"];
 
   // Convert lat/lng to a general location (e.g., "Los Angeles, CA")
   const location = lat && lng ? `${lat},${lng}` : "Los Angeles, CA"; // Default location
