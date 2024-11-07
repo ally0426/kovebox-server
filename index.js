@@ -15,13 +15,20 @@ app.use(
   })
 );
 
-// Route to fetch Google event search results based on location
+// Route to fetch Google event search results based on location, with pagination
 app.get("/api/events", async (req, res) => {
   const lat = req.query.lat || 34.0522; // Default to Los Angeles, CA
   const lng = req.query.lng || -118.2437;
+  const limit = parseInt(req.query.limit, 10) || 20; // Default to 20 results per page
+  const offset = parseInt(req.query.offset, 10) || 0; // Default to starting from the first result
 
   try {
-    const events = await scrapingController.fetchAllEvents(lat, lng);
+    const events = await scrapingController.fetchAllEvents(
+      lat,
+      lng,
+      limit,
+      offset
+    );
     res.json(events);
   } catch (error) {
     console.error("Error fetching events:", error);
@@ -34,6 +41,43 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// const express = require("express");
+// const dotenv = require("dotenv");
+// const cors = require("cors");
+// const scrapingController = require("./controllers/scrapingController");
+
+// dotenv.config();
+
+// const app = express();
+// app.use(express.json());
+
+// // CORS configuration to allow requests from your client domain
+// app.use(
+//   cors({
+//     origin: ["https://kovebox.com", "https://www.kovebox.com"],
+//   })
+// );
+
+// // Route to fetch Google event search results based on location
+// app.get("/api/events", async (req, res) => {
+//   const lat = req.query.lat || 34.0522; // Default to Los Angeles, CA
+//   const lng = req.query.lng || -118.2437;
+
+//   try {
+//     const events = await scrapingController.fetchAllEvents(lat, lng);
+//     res.json(events);
+//   } catch (error) {
+//     console.error("Error fetching events:", error);
+//     res.status(500).json({ error: "Error fetching events" });
+//   }
+// });
+
+// // Start the server
+// const PORT = process.env.PORT || 5000;
+// app.listen(PORT, () => {
+//   console.log(`Server running on port ${PORT}`);
+// });
 
 // const express = require("express");
 // const dotenv = require("dotenv");

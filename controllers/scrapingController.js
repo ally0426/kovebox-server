@@ -7,7 +7,6 @@ const fetchGoogleEvents = async (keywords, location) => {
 
   // Combine keywords with "events" and location to create a query string
   const query = `${keywords.join(" OR ")} events in ${location}`;
-
   const googleSearchUrl = `https://www.googleapis.com/customsearch/v1`;
 
   try {
@@ -16,40 +15,96 @@ const fetchGoogleEvents = async (keywords, location) => {
         key: apiKey,
         cx: searchEngineId,
         q: query,
-        num: 10, // Limit to 10 results
+        num: 10, // Fetch up to 10 results at a time
       },
     });
 
-    // Map results to a simplified format
-    const events = response.data.items.map((item) => ({
-      source: "Google Search",
-      title: item.title,
-      snippet: item.snippet,
-      link: item.link,
-    }));
-
-    console.log("Fetched Google Events:", events);
-    return events;
+    // Check if response.data.items exists and is an array
+    if (response.data && Array.isArray(response.data.items)) {
+      const events = response.data.items.map((item) => ({
+        source: "Google Search",
+        title: item.title,
+        snippet: item.snippet,
+        link: item.link,
+      }));
+      return events;
+    } else {
+      console.warn("No items found in Google Custom Search response.");
+      return [];
+    }
   } catch (error) {
     console.error("Error fetching Google Events:", error);
     return [];
   }
 };
 
-// Main function to fetch all events, only using Google Events
-const fetchAllEvents = async (lat, lng) => {
-  const keywords = ["korean event", "kpop event", "korean food event"];
-
-  // Convert lat/lng to a general location (e.g., "Los Angeles, CA")
-  const location = lat && lng ? `${lat},${lng}` : "Los Angeles, CA"; // Default location
+// Main function to fetch all events with pagination
+const fetchAllEvents = async (lat, lng, limit = 20, offset = 0) => {
+  const keywords = ["korean", "kpop", "korean food"];
+  const location = lat && lng ? `${lat},${lng}` : "Los Angeles, CA";
 
   const googleEvents = await fetchGoogleEvents(keywords, location);
 
-  // Return only the Google Events results as the event data
-  return googleEvents;
+  // Apply limit and offset to simulate pagination
+  const paginatedEvents = googleEvents.slice(offset, offset + limit);
+
+  return paginatedEvents;
 };
 
 module.exports = { fetchAllEvents };
+
+// const axios = require("axios");
+
+// // Function to fetch Google Events based on keywords and location
+// const fetchGoogleEvents = async (keywords, location) => {
+//   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY;
+//   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
+
+//   // Combine keywords with "events" and location to create a query string
+//   const query = `${keywords.join(" OR ")} events in ${location}`;
+
+//   const googleSearchUrl = `https://www.googleapis.com/customsearch/v1`;
+
+//   try {
+//     const response = await axios.get(googleSearchUrl, {
+//       params: {
+//         key: apiKey,
+//         cx: searchEngineId,
+//         q: query,
+//         num: 10, // Limit to 10 results
+//       },
+//     });
+
+//     // Map results to a simplified format
+//     const events = response.data.items.map((item) => ({
+//       source: "Google Search",
+//       title: item.title,
+//       snippet: item.snippet,
+//       link: item.link,
+//     }));
+
+//     console.log("Fetched Google Events:", events);
+//     return events;
+//   } catch (error) {
+//     console.error("Error fetching Google Events.:", error);
+//     return [];
+//   }
+// };
+
+// // Main function to fetch all events, only using Google Events
+// const fetchAllEvents = async (lat, lng) => {
+//   const keywords = ["korean event", "kpop event", "korean food event"];
+
+//   // Convert lat/lng to a general location (e.g., "Los Angeles, CA")
+//   const location = lat && lng ? `${lat},${lng}` : "Los Angeles, CA"; // Default location
+
+//   const googleEvents = await fetchGoogleEvents(keywords, location);
+
+//   // Return only the Google Events results as the event data
+//   return googleEvents;
+// };
+
+// module.exports = { fetchAllEvents };
 
 // //1.
 // const axios = require("axios");
