@@ -1,37 +1,47 @@
 const axios = require("axios");
 
 // Function to fetch Google Events based on keywords and location
-const fetchGoogleEvents = async (keywords, location) => {
+const fetchGoogleEvents = async (keywords, location, limit = 20) => {
   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY;
   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
 
-  // Combine keywords with "events" and location to create a query string
   const query = `${keywords.join(" OR ")} events in ${location}`;
   const googleSearchUrl = `https://www.googleapis.com/customsearch/v1`;
 
-  try {
-    const response = await axios.get(googleSearchUrl, {
-      params: {
-        key: apiKey,
-        cx: searchEngineId,
-        q: query,
-        num: 10, // Fetch up to 10 results at a time
-      },
-    });
+  let events = [];
+  let startIndex = 1; // Google Custom Search uses 1-based indexing
+  const maxResultsPerRequest = 10; // Google Custom Search API has a max of 10 results per request
 
-    // Check if response.data.items exists and is an array
-    if (response.data && Array.isArray(response.data.items)) {
-      const events = response.data.items.map((item) => ({
-        source: "Google Search",
-        title: item.title,
-        snippet: item.snippet,
-        link: item.link,
-      }));
-      return events;
-    } else {
-      console.warn("No items found in Google Custom Search response.");
-      return [];
+  try {
+    while (events.length < limit) {
+      const response = await axios.get(googleSearchUrl, {
+        params: {
+          key: apiKey,
+          cx: searchEngineId,
+          q: query,
+          start: startIndex,
+          num: maxResultsPerRequest,
+        },
+      });
+
+      if (response.data && Array.isArray(response.data.items)) {
+        events = events.concat(
+          response.data.items.map((item) => ({
+            source: "Google Search",
+            title: item.title,
+            snippet: item.snippet,
+            link: item.link,
+          }))
+        );
+      }
+
+      // Update startIndex for the next batch and break if fewer than 10 results are returned
+      if (response.data.items.length < maxResultsPerRequest) break;
+      startIndex += maxResultsPerRequest;
     }
+
+    // Return only up to the limit specified
+    return events.slice(0, limit);
   } catch (error) {
     console.error("Error fetching Google Events:", error);
     return [];
@@ -43,7 +53,11 @@ const fetchAllEvents = async (lat, lng, limit = 20, offset = 0) => {
   const keywords = ["korean", "kpop", "korean food"];
   const location = lat && lng ? `${lat},${lng}` : "Los Angeles, CA";
 
-  const googleEvents = await fetchGoogleEvents(keywords, location);
+  const googleEvents = await fetchGoogleEvents(
+    keywords,
+    location,
+    limit + offset
+  );
 
   // Apply limit and offset to simulate pagination
   const paginatedEvents = googleEvents.slice(offset, offset + limit);
@@ -53,6 +67,63 @@ const fetchAllEvents = async (lat, lng, limit = 20, offset = 0) => {
 
 module.exports = { fetchAllEvents };
 
+//1.
+// const axios = require("axios");
+
+// // Function to fetch Google Events based on keywords and location
+// const fetchGoogleEvents = async (keywords, location) => {
+//   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY;
+//   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
+
+//   // Combine keywords with "events" and location to create a query string
+//   const query = `${keywords.join(" OR ")} events in ${location}`;
+//   const googleSearchUrl = `https://www.googleapis.com/customsearch/v1`;
+
+//   try {
+//     const response = await axios.get(googleSearchUrl, {
+//       params: {
+//         key: apiKey,
+//         cx: searchEngineId,
+//         q: query,
+//         num: 10, // Fetch up to 10 results at a time
+//       },
+//     });
+
+//     // Check if response.data.items exists and is an array
+//     if (response.data && Array.isArray(response.data.items)) {
+//       const events = response.data.items.map((item) => ({
+//         source: "Google Search",
+//         title: item.title,
+//         snippet: item.snippet,
+//         link: item.link,
+//       }));
+//       return events;
+//     } else {
+//       console.warn("No items found in Google Custom Search response.");
+//       return [];
+//     }
+//   } catch (error) {
+//     console.error("Error fetching Google Events:", error);
+//     return [];
+//   }
+// };
+
+// // Main function to fetch all events with pagination
+// const fetchAllEvents = async (lat, lng, limit = 20, offset = 0) => {
+//   const keywords = ["korean", "kpop", "korean food"];
+//   const location = lat && lng ? `${lat},${lng}` : "Los Angeles, CA";
+
+//   const googleEvents = await fetchGoogleEvents(keywords, location);
+
+//   // Apply limit and offset to simulate pagination
+//   const paginatedEvents = googleEvents.slice(offset, offset + limit);
+
+//   return paginatedEvents;
+// };
+
+// module.exports = { fetchAllEvents };
+
+//2.
 // const axios = require("axios");
 
 // // Function to fetch Google Events based on keywords and location
