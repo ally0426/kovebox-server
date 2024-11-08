@@ -50,7 +50,15 @@ const fetchGoogleEvents = async (keywords, location, limit = 20) => {
 
 // Main function to fetch all events with pagination
 const fetchAllEvents = async (lat, lng, limit = 20, offset = 0) => {
-  const keywords = ["korean", "kpop", "korean food"];
+  const keywords = [
+    "korean event",
+    "kpop event",
+    "korean food event",
+    "korean language event",
+    "korean drama event",
+    "korean moive event",
+    "korea travel event",
+  ];
   const location = lat && lng ? `${lat},${lng}` : "Los Angeles, CA";
 
   const googleEvents = await fetchGoogleEvents(
