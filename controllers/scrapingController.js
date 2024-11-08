@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-// Function to fetch Google Events based on keywords and location
+// Function to fetch Google Events based on refined keywords and location
 const fetchGoogleEvents = async (keywords, location, limit = 20) => {
   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY;
   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
@@ -31,6 +31,13 @@ const fetchGoogleEvents = async (keywords, location, limit = 20) => {
             title: item.title,
             snippet: item.snippet,
             link: item.link,
+            // Add additional details if they are present
+            date:
+              item.pagemap?.metatags?.[0]?.["event:start_date"] ||
+              "Date not available",
+            location:
+              item.pagemap?.metatags?.[0]?.["event:location"] ||
+              "Location not available",
           }))
         );
       }
@@ -50,16 +57,8 @@ const fetchGoogleEvents = async (keywords, location, limit = 20) => {
 
 // Main function to fetch all events with pagination
 const fetchAllEvents = async (lat, lng, limit = 20, offset = 0) => {
-  const keywords = [
-    "korean event",
-    "kpop event",
-    "korean food event",
-    "korean language event",
-    "korean drama event",
-    "korean moive event",
-    "korea travel event",
-  ];
-  const location = lat && lng ? `${lat},${lng}` : "Los Angeles, CA";
+  const keywords = ["Korean event", "Korean culture event", "K-pop event"];
+  const location = lat && lng ? `${lat},${lng}` : "Minneapolis, MN";
 
   const googleEvents = await fetchGoogleEvents(
     keywords,
@@ -74,6 +73,83 @@ const fetchAllEvents = async (lat, lng, limit = 20, offset = 0) => {
 };
 
 module.exports = { fetchAllEvents };
+
+// const axios = require("axios");
+
+// // Function to fetch Google Events based on keywords and location
+// const fetchGoogleEvents = async (keywords, location, limit = 20) => {
+//   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY;
+//   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
+
+//   const query = `${keywords.join(" OR ")} events in ${location}`;
+//   const googleSearchUrl = `https://www.googleapis.com/customsearch/v1`;
+
+//   let events = [];
+//   let startIndex = 1; // Google Custom Search uses 1-based indexing
+//   const maxResultsPerRequest = 10; // Google Custom Search API has a max of 10 results per request
+
+//   try {
+//     while (events.length < limit) {
+//       const response = await axios.get(googleSearchUrl, {
+//         params: {
+//           key: apiKey,
+//           cx: searchEngineId,
+//           q: query,
+//           start: startIndex,
+//           num: maxResultsPerRequest,
+//         },
+//       });
+
+//       if (response.data && Array.isArray(response.data.items)) {
+//         events = events.concat(
+//           response.data.items.map((item) => ({
+//             source: "Google Search",
+//             title: item.title,
+//             snippet: item.snippet,
+//             link: item.link,
+//           }))
+//         );
+//       }
+
+//       // Update startIndex for the next batch and break if fewer than 10 results are returned
+//       if (response.data.items.length < maxResultsPerRequest) break;
+//       startIndex += maxResultsPerRequest;
+//     }
+
+//     // Return only up to the limit specified
+//     return events.slice(0, limit);
+//   } catch (error) {
+//     console.error("Error fetching Google Events:", error);
+//     return [];
+//   }
+// };
+
+// // Main function to fetch all events with pagination
+// const fetchAllEvents = async (lat, lng, limit = 20, offset = 0) => {
+//   const keywords = [
+//     "korean event",
+//     "kpop event",
+//     "korean food event",
+//     "korean language event",
+//     "korean drama event",
+//     "korean moive event",
+//     "korea travel event",
+//   ];
+//   const location = lat && lng ? `${lat},${lng}` : "Los Angeles, CA";
+
+//   const googleEvents = await fetchGoogleEvents(
+//     keywords,
+//     location,
+//     limit + offset
+//   );
+
+//   // Apply limit and offset to simulate pagination
+//   const paginatedEvents = googleEvents.slice(offset, offset + limit);
+
+//   return paginatedEvents;
+// };
+
+// module.exports = { fetchAllEvents };
 
 //1.
 // const axios = require("axios");
