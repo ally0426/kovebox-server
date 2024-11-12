@@ -156,10 +156,15 @@ const fetchGoogleCalendarEvents = async (keywords, location, limit = 20) => {
 };
 
 // Main function to fetch all events with pagination and combine results
-const fetchAllEvents = async (lat, lng, limit = 20, offset = 0) => {
+const fetchAllEvents = async (
+  lat = 45.5126,
+  lng = -4.4904,
+  limit = 20,
+  offset = 0
+) => {
   const keywords = ["Korean", "K-pop", "Korean food"];
   const location = `${lat},${lng}` || "Minneapolis, MN";
-  console.log(`location: {lat}, ${lng}`);
+  console.log(`location: {$lat} lat - ${lng} lng: ${location}`);
 
   // Fetch events from multiple sources
   const googleCalendarEvents = await fetchGoogleCalendarEvents(
