@@ -159,6 +159,7 @@ const fetchGoogleCalendarEvents = async (keywords, location, limit = 20) => {
 const fetchAllEvents = async (lat, lng, limit = 20, offset = 0) => {
   const keywords = ["Korean", "K-pop", "Korean food"];
   const location = `${lat},${lng}` || "Minneapolis, MN";
+  console.log(`location: {lat}, ${lng}`);
 
   // Fetch events from multiple sources
   const googleCalendarEvents = await fetchGoogleCalendarEvents(
