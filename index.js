@@ -17,8 +17,10 @@ app.use(
 
 // Route to fetch Google event search results based on location, with pagination
 app.get("/api/events", async (req, res) => {
-  const lat = req.query.lat || 34.0522; // Default to Los Angeles, CA
-  const lng = req.query.lng || -118.2437;
+  const lat = req.query.lat || 45.5126; // Default to Minneapolis, MN
+  const lng = req.query.lng || -4.4904;
+  //   const lat = req.query.lat || 34.0522; // Default to Los Angeles, CA
+  //   const lng = req.query.lng || -118.2437;
   const limit = parseInt(req.query.limit, 10) || 20; // Default to 20 results per page
   const offset = parseInt(req.query.offset, 10) || 0; // Default to starting from the first result
 
