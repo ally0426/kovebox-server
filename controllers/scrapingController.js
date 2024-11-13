@@ -16,6 +16,7 @@ const fetchEventbriteEvents = async (location, limit = 20) => {
         page_size: limit,
       },
     });
+    console.log(`location from Eventbrite: ${location}`);
 
     if (response.data && response.data.events) {
       return response.data.events.map((event) => ({
@@ -157,8 +158,8 @@ const fetchGoogleCalendarEvents = async (keywords, location, limit = 20) => {
 
 // Main function to fetch all events with pagination and combine results
 const fetchAllEvents = async (
-  lat = 45.5126,
-  lng = -4.4904,
+  lat = 34.0522,
+  lng = -118.2437,
   limit = 20,
   offset = 0
 ) => {
