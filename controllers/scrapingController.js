@@ -162,8 +162,15 @@ const fetchAllEvents = async (
   limit = 20,
   offset = 0
 ) => {
-  const keywords = ["Korean", "K-pop", "Korean food"];
-  const location = `${lat},${lng}` || "Minneapolis, MN";
+  const keywords = [
+    "Korean event",
+    "K-pop",
+    "Korean food",
+    "korean drama",
+    "korean language",
+  ];
+  const location = `${lat},${lng}` || "Los Angeles, CA";
+  // const location = `${lat},${lng}` || "Minneapolis, MN";
   console.log(`location: {$lat} lat - ${lng} lng: ${location}`);
 
   // Fetch events from multiple sources
