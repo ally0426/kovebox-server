@@ -42,7 +42,7 @@ const fetchTicketmasterEvents = async (location, limit = 20) => {
     const response = await axios.get(ticketmasterUrl, {
       params: {
         apikey: process.env.TICKETMASTER_API_KEY,
-        keyword: "Korean",
+        keyword: "Korean concert",
         latlong: location,
         radius: 50,
         size: limit,
@@ -164,11 +164,12 @@ const fetchAllEvents = async (
   offset = 0
 ) => {
   const keywords = [
-    "Korean event",
-    "K-pop",
-    "Korean food",
-    "korean drama",
-    "korean language",
+    "Korean events",
+    "K-pop events",
+    "Korean cooking events",
+    "korean drama events",
+    "korean language events",
+    "Korean cultural events",
   ];
   const location = `${lat},${lng}` || "Los Angeles, CA";
   // const location = `${lat},${lng}` || "Minneapolis, MN";
