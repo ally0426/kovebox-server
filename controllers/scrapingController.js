@@ -1,36 +1,48 @@
 const axios = require("axios");
 
-// Function to fetch events from Eventbrite
-const fetchEventbriteEvents = async (location, limit = 20) => {
-  const eventbriteUrl = `https://www.eventbriteapi.com/v3/events/search/`;
-  try {
-    const response = await axios.get(eventbriteUrl, {
-      headers: {
-        Authorization: `Bearer ${process.env.EVENTBRITE_API_TOKEN}`,
-      },
-      params: {
-        q: "Korean",
-        "location.address": location,
-        "location.within": "50km",
-        expand: "venue",
-        page_size: limit,
-      },
-    });
-    console.log(`location from Eventbrite: ${location}`);
+// Function to fetch events from Eventbrite for multiple keywords
+const fetchEventbriteEvents = async (keywords, location, limit = 20) => {
+  const eventbriteUrl = "https://www.eventbriteapi.com/v3/events/search/";
+  const apiKey = process.env.EVENTBRITE_API_KEY;
+  const events = [];
 
-    if (response.data && response.data.events) {
-      return response.data.events.map((event) => ({
-        source: "Eventbrite",
-        title: event.name.text,
-        snippet: event.description.text,
-        date: event.start.local,
-        location: event.venue.address.localized_address_display,
-        link: event.url,
-      }));
+  try {
+    for (const keyword of keywords) {
+      const response = await axios.get(eventbriteUrl, {
+        params: {
+          q: keyword, // Search keyword
+          "location.address": location,
+          "location.within": "50km", // Search radius
+          sort_by: "date",
+          expand: "venue",
+          page: 1,
+        },
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+      });
+
+      if (response.data && response.data.events) {
+        response.data.events.forEach((event) => {
+          events.push({
+            source: "Eventbrite",
+            title: event.name.text,
+            snippet:
+              event.description.text?.substring(0, 100) ||
+              "No description available.",
+            link: event.url,
+            date: event.start?.local || "Date not available",
+            location:
+              event.venue?.address?.localized_address_display ||
+              "Location not available",
+          });
+        });
+      }
     }
-    return [];
+
+    return events.slice(0, limit); // Return the limited number of events
   } catch (error) {
-    console.error("Error fetching Eventbrite events:", error);
+    console.error("Error fetching data from Eventbrite:", error);
     return [];
   }
 };
