@@ -21,6 +21,10 @@ const fetchEventbriteEvents = async (keywords, location, limit = 20) => {
           Authorization: `Bearer ${apiKey}`,
         },
       });
+      console.log(`RAW API response: ${response}`);
+      console.log(
+        `response.headers['content-type]: ${response.headers["content-type"]}`
+      );
 
       if (response.data && response.data.events) {
         response.data.events.forEach((event) => {
