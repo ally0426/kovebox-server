@@ -3,7 +3,7 @@ const axios = require("axios");
 const fetchGoogleCustomSearchResults = async (req, res) => {
   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_KEY;
   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
-  const query = req.query.q || "kpop events Los Angeles this weekend"; // Default query
+  const query = req.query.q || "Korean events Los Angeles this weekend"; // Default query
   const start = req.query.start || 1; // Pagination support
 
   try {
@@ -29,8 +29,11 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
 
     res.json(items);
   } catch (error) {
-    console.error("Error fetching Google Custom Search results:", error);
-    res.status(500).json({ error: "Failed to fetch results" });
+    console.error(
+      "Error fetching Google Custom Search results:",
+      error.response?.data || error.message
+    );
+    res.status(500).json({ error: "Failed to fetch results..Oh No!" });
   }
 };
 
