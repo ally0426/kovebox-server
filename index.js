@@ -1,7 +1,9 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const { fetchGoogleCustomSearchResults } = require("./scrapingController");
+const {
+  fetchGoogleCustomSearchResults,
+} = require("./controllers/scrapingController");
 
 dotenv.config();
 

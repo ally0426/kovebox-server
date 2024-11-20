@@ -1,15 +1,9 @@
-
-
-Ally L. <abinding@gmail.com>
-6:23 AM (5 minutes ago)
-to me
-
-const axios = require('axios');
+const axios = require("axios");
 
 const fetchGoogleCustomSearchResults = async (req, res) => {
   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_KEY;
   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
-  const query = req.query.q || 'kpop events Los Angeles this weekend'; // Default query
+  const query = req.query.q || "kpop events Los Angeles this weekend"; // Default query
   const start = req.query.start || 1; // Pagination support
 
   try {
@@ -20,7 +14,7 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
           key: apiKey,
           cx: searchEngineId,
           q: query,
-          searchType: 'image', // Fetch image results
+          searchType: "image", // Fetch image results
           start: start,
         },
       }
@@ -35,8 +29,8 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
 
     res.json(items);
   } catch (error) {
-    console.error('Error fetching Google Custom Search results:', error);
-    res.status(500).json({ error: 'Failed to fetch results' });
+    console.error("Error fetching Google Custom Search results:", error);
+    res.status(500).json({ error: "Failed to fetch results" });
   }
 };
 
