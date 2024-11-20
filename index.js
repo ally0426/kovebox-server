@@ -7,7 +7,11 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://kovebox.com", "https://www.kovebox.com"],
+  })
+);
 app.use(express.json());
 
 // Route for Google Custom Search
