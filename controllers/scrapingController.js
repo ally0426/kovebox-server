@@ -1,229 +1,273 @@
-const axios = require("axios");
 
-// Function to fetch events from Eventbrite for multiple keywords
-const fetchEventbriteEvents = async (keywords, location, limit = 20) => {
-  const eventbriteUrl = "https://www.eventbriteapi.com/v3/events/search/";
-  const apiKey = process.env.EVENTBRITE_API_KEY;
-  const events = [];
 
-  try {
-    for (const keyword of keywords) {
-      const response = await axios.get(eventbriteUrl, {
-        params: {
-          q: keyword, // Search keyword
-          "location.address": location,
-          "location.within": "50km", // Search radius
-          sort_by: "date",
-          expand: "venue",
-          page: 1,
-        },
-        headers: {
-          Authorization: `Bearer ${apiKey}`,
-        },
-      });
-      console.log(`RAW API response: ${response}`);
-      console.log(
-        `response.headers['content-type]: ${response.headers["content-type"]}`
-      );
+Ally L. <abinding@gmail.com>
+6:23 AM (5 minutes ago)
+to me
 
-      if (response.data && response.data.events) {
-        response.data.events.forEach((event) => {
-          events.push({
-            source: "Eventbrite",
-            title: event.name.text,
-            snippet:
-              event.description.text?.substring(0, 100) ||
-              "No description available.",
-            link: event.url,
-            date: event.start?.local || "Date not available",
-            location:
-              event.venue?.address?.localized_address_display ||
-              "Location not available",
-          });
-        });
-      }
-    }
+const axios = require('axios');
 
-    return events.slice(0, limit); // Return the limited number of events
-  } catch (error) {
-    console.error("Error fetching data from Eventbrite:", error);
-    return [];
-  }
-};
-
-// Function to fetch events from Ticketmaster
-const fetchTicketmasterEvents = async (location, limit = 20) => {
-  const ticketmasterUrl = `https://app.ticketmaster.com/discovery/v2/events.json`;
-  try {
-    const response = await axios.get(ticketmasterUrl, {
-      params: {
-        apikey: process.env.TICKETMASTER_API_KEY,
-        keyword: "Korean concert",
-        latlong: location,
-        radius: 50,
-        size: limit,
-      },
-    });
-
-    if (
-      response.data &&
-      response.data._embedded &&
-      response.data._embedded.events
-    ) {
-      return response.data._embedded.events.map((event) => ({
-        source: "Ticketmaster",
-        title: event.name,
-        snippet: event.info || "No description available",
-        date: event.dates.start.localDate || "Date not available",
-        location: event._embedded.venues[0].name || "Location not available",
-        link: event.url,
-      }));
-    }
-    return [];
-  } catch (error) {
-    console.error("Error fetching Ticketmaster events:", error);
-    return [];
-  }
-};
-
-// Function to fetch events using Google Custom Search
-const fetchGoogleEvents = async (keywords, location, limit = 20) => {
-  const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY;
+const fetchGoogleCustomSearchResults = async (req, res) => {
+  const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_KEY;
   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
-  const query = `${keywords.join(" OR ")} events in ${location}`;
-  const googleSearchUrl = `https://www.googleapis.com/customsearch/v1`;
-
-  let events = [];
-  let startIndex = 1; // Google Custom Search uses 1-based indexing
-  const maxResultsPerRequest = 10;
+  const query = req.query.q || 'kpop events Los Angeles this weekend'; // Default query
+  const start = req.query.start || 1; // Pagination support
 
   try {
-    while (events.length < limit) {
-      const response = await axios.get(googleSearchUrl, {
+    const response = await axios.get(
+      `https://www.googleapis.com/customsearch/v1`,
+      {
         params: {
           key: apiKey,
           cx: searchEngineId,
           q: query,
-          start: startIndex,
-          num: maxResultsPerRequest,
+          searchType: 'image', // Fetch image results
+          start: start,
         },
-      });
-
-      if (response.data && Array.isArray(response.data.items)) {
-        events = events.concat(
-          response.data.items.map((item) => ({
-            source: "Google Search",
-            title: item.title,
-            snippet: item.snippet,
-            link: item.link,
-            date:
-              item.pagemap?.metatags?.[0]?.["event:start_date"] ||
-              "Date not available",
-            location:
-              item.pagemap?.metatags?.[0]?.["event:location"] ||
-              "Location not available",
-          }))
-        );
       }
+    );
 
-      if (response.data.items.length < maxResultsPerRequest) break;
-      startIndex += maxResultsPerRequest;
-    }
+    const items = response.data.items.map((item) => ({
+      title: item.title,
+      link: item.link, // Direct link to the image
+      snippet: item.snippet,
+      contextLink: item.image.contextLink, // Link to the webpage
+    }));
 
-    return events.slice(0, limit);
+    res.json(items);
   } catch (error) {
-    console.error("Error fetching Google Events:", error);
-    return [];
+    console.error('Error fetching Google Custom Search results:', error);
+    res.status(500).json({ error: 'Failed to fetch results' });
   }
 };
 
-// Function to fetch events from Google Calendar
-const fetchGoogleCalendarEvents = async (keywords, location, limit = 20) => {
-  const calendarUrl = `https://www.googleapis.com/calendar/v3/calendars/primary/events`;
-  const query = keywords.join(" OR ");
-  const timeMin = new Date().toISOString(); // Only upcoming events
+module.exports = { fetchGoogleCustomSearchResults };
 
-  try {
-    const response = await axios.get(calendarUrl, {
-      params: {
-        key: process.env.GOOGLE_CALENDAR_API_KEY,
-        q: query,
-        timeMin: timeMin,
-        maxResults: limit,
-        singleEvents: true,
-        orderBy: "startTime",
-      },
-    });
+// const axios = require("axios");
 
-    if (response.data && response.data.items) {
-      return response.data.items.map((event) => ({
-        source: "Google Calendar",
-        title: event.summary,
-        snippet: event.description || "No description available",
-        date: event.start.dateTime || event.start.date,
-        location: event.location || location,
-        link: event.htmlLink,
-      }));
-    }
-    return [];
-  } catch (error) {
-    console.error("Error fetching Google Calendar events:", error);
-    return [];
-  }
-};
+// // Function to fetch events from Eventbrite for multiple keywords
+// const fetchEventbriteEvents = async (keywords, location, limit = 20) => {
+//   const eventbriteUrl = "https://www.eventbriteapi.com/v3/events/search/";
+//   const apiKey = process.env.EVENTBRITE_API_KEY;
+//   const events = [];
 
-// Main function to fetch all events with pagination and combine results
-const fetchAllEvents = async (
-  lat = 34.0522,
-  lng = -118.2437,
-  limit = 20,
-  offset = 0
-) => {
-  const keywords = [
-    "Korean events",
-    "K-pop events",
-    "Korean cooking events",
-    "korean drama events",
-    "korean language events",
-    "Korean cultural events",
-  ];
-  const location = `${lat},${lng}` || "Los Angeles, CA";
-  // const location = `${lat},${lng}` || "Minneapolis, MN";
-  console.log(`location: {$lat} lat - ${lng} lng: ${location}`);
+//   try {
+//     for (const keyword of keywords) {
+//       const response = await axios.get(eventbriteUrl, {
+//         params: {
+//           q: keyword, // Search keyword
+//           "location.address": location,
+//           "location.within": "50km", // Search radius
+//           sort_by: "date",
+//           expand: "venue",
+//           page: 1,
+//         },
+//         headers: {
+//           Authorization: `Bearer ${apiKey}`,
+//         },
+//       });
+//       console.log(`RAW API response: ${response}`);
+//       console.log(
+//         `response.headers['content-type]: ${response.headers["content-type"]}`
+//       );
 
-  // Fetch events from multiple sources
-  const googleCalendarEvents = await fetchGoogleCalendarEvents(
-    keywords,
-    location,
-    limit + offset
-  );
-  const googleEvents = await fetchGoogleEvents(
-    keywords,
-    location,
-    limit + offset
-  );
-  const eventbriteEvents = await fetchEventbriteEvents(
-    location,
-    limit + offset
-  );
-  const ticketmasterEvents = await fetchTicketmasterEvents(
-    location,
-    limit + offset
-  );
+//       if (response.data && response.data.events) {
+//         response.data.events.forEach((event) => {
+//           events.push({
+//             source: "Eventbrite",
+//             title: event.name.text,
+//             snippet:
+//               event.description.text?.substring(0, 100) ||
+//               "No description available.",
+//             link: event.url,
+//             date: event.start?.local || "Date not available",
+//             location:
+//               event.venue?.address?.localized_address_display ||
+//               "Location not available",
+//           });
+//         });
+//       }
+//     }
 
-  // Combine and limit results for pagination
-  const allEvents = [
-    ...googleCalendarEvents,
-    ...googleEvents,
-    ...eventbriteEvents,
-    ...ticketmasterEvents,
-  ];
-  const paginatedEvents = allEvents.slice(offset, offset + limit);
+//     return events.slice(0, limit); // Return the limited number of events
+//   } catch (error) {
+//     console.error("Error fetching data from Eventbrite:", error);
+//     return [];
+//   }
+// };
 
-  return paginatedEvents;
-};
+// // Function to fetch events from Ticketmaster
+// const fetchTicketmasterEvents = async (location, limit = 20) => {
+//   const ticketmasterUrl = `https://app.ticketmaster.com/discovery/v2/events.json`;
+//   try {
+//     const response = await axios.get(ticketmasterUrl, {
+//       params: {
+//         apikey: process.env.TICKETMASTER_API_KEY,
+//         keyword: "Korean concert",
+//         latlong: location,
+//         radius: 50,
+//         size: limit,
+//       },
+//     });
 
-module.exports = { fetchAllEvents };
+//     if (
+//       response.data &&
+//       response.data._embedded &&
+//       response.data._embedded.events
+//     ) {
+//       return response.data._embedded.events.map((event) => ({
+//         source: "Ticketmaster",
+//         title: event.name,
+//         snippet: event.info || "No description available",
+//         date: event.dates.start.localDate || "Date not available",
+//         location: event._embedded.venues[0].name || "Location not available",
+//         link: event.url,
+//       }));
+//     }
+//     return [];
+//   } catch (error) {
+//     console.error("Error fetching Ticketmaster events:", error);
+//     return [];
+//   }
+// };
+
+// // Function to fetch events using Google Custom Search
+// const fetchGoogleEvents = async (keywords, location, limit = 20) => {
+//   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY;
+//   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
+//   const query = `${keywords.join(" OR ")} events in ${location}`;
+//   const googleSearchUrl = `https://www.googleapis.com/customsearch/v1`;
+
+//   let events = [];
+//   let startIndex = 1; // Google Custom Search uses 1-based indexing
+//   const maxResultsPerRequest = 10;
+
+//   try {
+//     while (events.length < limit) {
+//       const response = await axios.get(googleSearchUrl, {
+//         params: {
+//           key: apiKey,
+//           cx: searchEngineId,
+//           q: query,
+//           start: startIndex,
+//           num: maxResultsPerRequest,
+//         },
+//       });
+
+//       if (response.data && Array.isArray(response.data.items)) {
+//         events = events.concat(
+//           response.data.items.map((item) => ({
+//             source: "Google Search",
+//             title: item.title,
+//             snippet: item.snippet,
+//             link: item.link,
+//             date:
+//               item.pagemap?.metatags?.[0]?.["event:start_date"] ||
+//               "Date not available",
+//             location:
+//               item.pagemap?.metatags?.[0]?.["event:location"] ||
+//               "Location not available",
+//           }))
+//         );
+//       }
+
+//       if (response.data.items.length < maxResultsPerRequest) break;
+//       startIndex += maxResultsPerRequest;
+//     }
+
+//     return events.slice(0, limit);
+//   } catch (error) {
+//     console.error("Error fetching Google Events:", error);
+//     return [];
+//   }
+// };
+
+// // Function to fetch events from Google Calendar
+// const fetchGoogleCalendarEvents = async (keywords, location, limit = 20) => {
+//   const calendarUrl = `https://www.googleapis.com/calendar/v3/calendars/primary/events`;
+//   const query = keywords.join(" OR ");
+//   const timeMin = new Date().toISOString(); // Only upcoming events
+
+//   try {
+//     const response = await axios.get(calendarUrl, {
+//       params: {
+//         key: process.env.GOOGLE_CALENDAR_API_KEY,
+//         q: query,
+//         timeMin: timeMin,
+//         maxResults: limit,
+//         singleEvents: true,
+//         orderBy: "startTime",
+//       },
+//     });
+
+//     if (response.data && response.data.items) {
+//       return response.data.items.map((event) => ({
+//         source: "Google Calendar",
+//         title: event.summary,
+//         snippet: event.description || "No description available",
+//         date: event.start.dateTime || event.start.date,
+//         location: event.location || location,
+//         link: event.htmlLink,
+//       }));
+//     }
+//     return [];
+//   } catch (error) {
+//     console.error("Error fetching Google Calendar events:", error);
+//     return [];
+//   }
+// };
+
+// // Main function to fetch all events with pagination and combine results
+// const fetchAllEvents = async (
+//   lat = 34.0522,
+//   lng = -118.2437,
+//   limit = 20,
+//   offset = 0
+// ) => {
+//   const keywords = [
+//     "Korean events",
+//     "K-pop events",
+//     "Korean cooking events",
+//     "korean drama events",
+//     "korean language events",
+//     "Korean cultural events",
+//   ];
+//   const location = `${lat},${lng}` || "Los Angeles, CA";
+//   // const location = `${lat},${lng}` || "Minneapolis, MN";
+//   console.log(`location: {$lat} lat - ${lng} lng: ${location}`);
+
+//   // Fetch events from multiple sources
+//   const googleCalendarEvents = await fetchGoogleCalendarEvents(
+//     keywords,
+//     location,
+//     limit + offset
+//   );
+//   const googleEvents = await fetchGoogleEvents(
+//     keywords,
+//     location,
+//     limit + offset
+//   );
+//   const eventbriteEvents = await fetchEventbriteEvents(
+//     location,
+//     limit + offset
+//   );
+//   const ticketmasterEvents = await fetchTicketmasterEvents(
+//     location,
+//     limit + offset
+//   );
+
+//   // Combine and limit results for pagination
+//   const allEvents = [
+//     ...googleCalendarEvents,
+//     ...googleEvents,
+//     ...eventbriteEvents,
+//     ...ticketmasterEvents,
+//   ];
+//   const paginatedEvents = allEvents.slice(offset, offset + limit);
+
+//   return paginatedEvents;
+// };
+
+// module.exports = { fetchAllEvents };
 
 // const axios = require("axios");
 
