@@ -26,13 +26,14 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
         },
       }
     );
+    console.log("response.results", response.results);
 
     const items = Array.isArray(response.results.items)
       ? response.data.items.map((item) => ({
           title: item.title,
           link: item.link, // Direct link to the image
           snippet: item.snippet,
-          contextLink: item.image.contextLink, // Link to the webpage
+          contextLink: item.image?.contextLink || item.link, // Link to the webpage
         }))
       : []; // Default to an empty array [] if items are undefined or not an array
     console.log("Processed Items: ", items);
