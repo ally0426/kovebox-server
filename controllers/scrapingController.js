@@ -26,9 +26,9 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
         },
       }
     );
-    console.log("response.results", response.results);
+    console.log("response.data", response.data);
 
-    const items = Array.isArray(response.results.items)
+    const items = Array.isArray(response.data.items)
       ? response.data.items.map((item) => ({
           title: item.title,
           link: item.link, // Direct link to the image
