@@ -20,15 +20,21 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
           searchType: "image", // Fetch image results
           start: start,
         },
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
     );
 
-    const items = response.data.items.map((item) => ({
-      title: item.title,
-      link: item.link, // Direct link to the image
-      snippet: item.snippet,
-      contextLink: item.image.contextLink, // Link to the webpage
-    }));
+    const items = Array.isArray(response.results.items)
+      ? response.data.items.map((item) => ({
+          title: item.title,
+          link: item.link, // Direct link to the image
+          snippet: item.snippet,
+          contextLink: item.image.contextLink, // Link to the webpage
+        }))
+      : []; // Default to an empty array [] if items are undefined or not an array
+    console.log("Processed Items: ", items);
 
     res.json(items);
   } catch (error) {
@@ -36,7 +42,13 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
       "Error fetching Google Custom Search results:",
       error.response?.data || error.message
     );
-    res.status(500).json({ error: "Failed to fetch results..Oh No!" });
+    res
+      .status(err.response?.status || 500)
+      .json({
+        error:
+          err.response?.data?.error?.message ||
+          "Failed to fetch results..Oh No!",
+      });
   }
 };
 
