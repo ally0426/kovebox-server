@@ -5,6 +5,9 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
   const query = req.query.q || "Korean events Los Angeles this weekend"; // Default query
   const start = req.query.start || 1; // Pagination support
+  console.log(
+    `apiKey-searchEngineId-query" ${apiKey} - ${searchEngineId} - ${query}`
+  );
 
   try {
     const response = await axios.get(
