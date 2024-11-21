@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { Error } = require("mongoose");
 
 const fetchGoogleCustomSearchResults = async (req, res) => {
   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_KEY;
@@ -42,13 +43,11 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
       "Error fetching Google Custom Search results:",
       error.response?.data || error.message
     );
-    res
-      .status(err.response?.status || 500)
-      .json({
-        error:
-          err.response?.data?.error?.message ||
-          "Failed to fetch results..Oh No!",
-      });
+    res.status(error.response?.status || 500).json({
+      error:
+        error.response?.data?.error?.message ||
+        "Failed to fetch results..Oh No!",
+    });
   }
 };
 
