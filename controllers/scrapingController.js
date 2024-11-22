@@ -1,16 +1,30 @@
 const axios = require("axios");
-const { Error } = require("mongoose");
 
 const fetchGoogleCustomSearchResults = async (req, res) => {
   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_KEY;
   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
-  const query = req.query.q || "Korean events Los Angeles this weekend"; // Default query
-  // const start = req.query.start || 1; // Pagination support
-  console.log(
-    `apiKey-searchEngineId-query" ${apiKey} - ${searchEngineId} - ${query}`
-  );
+
+  // Extract query and location from the request
+  const userQuery = req.query.q || "";
+  const location = req.query.location || "Los Angeles, CA";
+
+  // Define default keywords
+  const keywords = [
+    "Korean events",
+    "K-pop events",
+    "Korean cooking events",
+    "Korean cultural events",
+    "Korean language events",
+  ];
+
+  // Build the query dynamically
+  const query = userQuery
+    ? `${userQuery} in ${location}`
+    : `${keywords.join(" OR ")} in ${location}`; // Default query combining all keywords
 
   try {
+    console.log("Generated Query:", query);
+
     const response = await axios.get(
       `https://www.googleapis.com/customsearch/v1`,
       {
@@ -18,46 +32,97 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
           key: apiKey,
           cx: searchEngineId,
           q: query,
-          searchType: "image", // Fetch image results
-          // start: start,
         },
         headers: {
           "Content-Type": "application/json",
         },
-        maxRedirects: 0, // Disable redirects
       }
     );
-    console.log("response.data", response.data);
 
-    const items = Array.isArray(response.data.items)
+    const items = Array.isArray(response.data?.items)
       ? response.data.items.map((item) => ({
           title: item.title,
-          link: item.link, // Direct link to the image
+          link: item.link,
           snippet: item.snippet,
-          contextLink: item.image?.contextLink || item.link, // Link to the webpage
+          contextLink: item.image?.contextLink || item.link,
         }))
-      : []; // Default to an empty array [] if items are undefined or not an array
-    console.log("Processed Items: ", items);
+      : [];
 
+    console.log("Processed Items:", items);
     res.json(items);
   } catch (error) {
-    console.error("Error Status Code: ", error.response?.status);
-    console.error("Error Headers: ", error.response?.headers);
-    console.error("Error Data: ", error.response?.data);
-
     console.error(
       "Error fetching Google Custom Search results:",
       error.response?.data || error.message
     );
     res.status(error.response?.status || 500).json({
-      error:
-        error.response?.data?.error?.message ||
-        "Failed to fetch results..Oh No!",
+      error: error.response?.data?.error?.message || "Failed to fetch results",
     });
   }
 };
 
 module.exports = { fetchGoogleCustomSearchResults };
+
+// const axios = require("axios");
+// const { Error } = require("mongoose");
+
+// const fetchGoogleCustomSearchResults = async (req, res) => {
+//   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_KEY;
+//   const searchEngineId = process.env.GOOGLE_SEARCH_ENGINE_ID;
+//   const query = req.query.q || "Korean events Los Angeles this weekend"; // Default query
+//   // const start = req.query.start || 1; // Pagination support
+//   console.log(
+//     `apiKey-searchEngineId-query" ${apiKey} - ${searchEngineId} - ${query}`
+//   );
+
+//   try {
+//     const response = await axios.get(
+//       `https://www.googleapis.com/customsearch/v1`,
+//       {
+//         params: {
+//           key: apiKey,
+//           cx: searchEngineId,
+//           q: query,
+//           searchType: "image", // Fetch image results
+//           // start: start,
+//         },
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         maxRedirects: 0, // Disable redirects
+//       }
+//     );
+//     console.log("response.data", response.data);
+
+//     const items = Array.isArray(response.data.items)
+//       ? response.data.items.map((item) => ({
+//           title: item.title,
+//           link: item.link, // Direct link to the image
+//           snippet: item.snippet,
+//           contextLink: item.image?.contextLink || item.link, // Link to the webpage
+//         }))
+//       : []; // Default to an empty array [] if items are undefined or not an array
+//     console.log("Processed Items: ", items);
+
+//     res.json(items);
+//   } catch (error) {
+//     console.error("Error Status Code: ", error.response?.status);
+//     console.error("Error Headers: ", error.response?.headers);
+//     console.error("Error Data: ", error.response?.data);
+
+//     console.error(
+//       "Error fetching Google Custom Search results:",
+//       error.response?.data || error.message
+//     );
+//     res.status(error.response?.status || 500).json({
+//       error:
+//         error.response?.data?.error?.message ||
+//         "Failed to fetch results..Oh No!",
+//     });
+//   }
+// };
+
+// module.exports = { fetchGoogleCustomSearchResults };
 
 // const axios = require("axios");
 
