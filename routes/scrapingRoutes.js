@@ -8,7 +8,8 @@ const {
 const router = express.Router();
 console.log("scraping routes loaded in scrapingRoutes.js...");
 
-router.get("/scrape/activities", scrapeActivities);
+router.get("/", fetchGoogleCustomSearchResults);
+//router.get("/scrape/activities", scrapeActivities);
 // router.get("/scrape/eventbrite", scrapeEventbrite);
 // router.get("/scrape/meetup", scrapeMeetup);
 

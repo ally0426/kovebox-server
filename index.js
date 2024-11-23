@@ -1,9 +1,10 @@
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
-const {
-  fetchGoogleCustomSearchResults,
-} = require("./controllers/scrapingController");
+const scrapingRoutes = require("./routes/scrapingRoutes");
+// const {
+//   fetchGoogleCustomSearchResults,
+// } = require("./controllers/scrapingController");
 
 dotenv.config();
 
@@ -17,7 +18,13 @@ app.use(
 app.use(express.json());
 
 // Route for Google Custom Search
-app.get("/api/search", fetchGoogleCustomSearchResults);
+app.use("/api/search", scrapingRoutes);
+//app.get("/api/search", fetchGoogleCustomSearchResults);
+
+app.use((req, res, next) => {
+  console.log(`Received request: ${req.method} ${req.originalUrl}`);
+  next();
+});
 
 // Fallback Route
 app.use((req, res) => {
