@@ -1,6 +1,7 @@
 const express = require("express");
 const {
-  scrapeActivities,
+  fetchGoogleCustomSearchResults,
+  //scrapeActivities,
   // scrapeEventbrite,
   // scrapeMeetup,
 } = require("../controllers/scrapingController");
