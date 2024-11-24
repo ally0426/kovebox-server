@@ -45,6 +45,7 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
           link: item.link,
           snippet: item.snippet,
           contextLink: item.image?.contextLink || item.link,
+          image: images[0],
         }))
       : [];
 
