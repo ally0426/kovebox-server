@@ -25,12 +25,18 @@ const fetchGeolocation = async (req, res) => {
 
     if (status === "OK" && results.length > 0) {
       const components = results[0].address_components;
+
+      // Prefer locality or fallback to neighborhood or administrative_area_level_2
       const city =
         components.find((c) => c.types.includes("locality"))?.long_name ||
+        components.find((c) => c.types.includes("neighborhood"))?.long_name ||
+        components.find((c) => c.types.includes("administrative_area_level_2"))
+          ?.long_name ||
         "Unknown City";
       const state =
         components.find((c) => c.types.includes("administrative_area_level_1"))
           ?.short_name || "Unknown State";
+      console.log(`city, state: ${city}, ${state}`);
       return res.json({ city, state });
     } else {
       return res.status(404).json({ error: "No location data found" });
