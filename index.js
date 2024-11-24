@@ -2,6 +2,8 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const scrapingRoutes = require("./routes/scrapingRoutes");
+const geocodingRoutes = require("./routes/geocodingRoutes");
+
 // const {
 //   fetchGoogleCustomSearchResults,
 // } = require("./controllers/scrapingController");
@@ -16,6 +18,9 @@ app.use(
   })
 );
 app.use(express.json());
+
+//Route for Google Geocoding
+app.use("/api", geocodingRoutes);
 
 // Route for Google Custom Search
 app.use("/api/search", scrapingRoutes);
