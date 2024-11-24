@@ -17,6 +17,7 @@ const fetchGeolocation = async (req, res) => {
         params: {
           latlng: `${lat},${lon}`,
           key: apiKey,
+          region: "us",
         },
       }
     );
