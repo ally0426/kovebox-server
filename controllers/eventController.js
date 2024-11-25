@@ -20,12 +20,15 @@ const getEventDetail = async (req, res) => {
         params: {
           key: GOOGLE_CUSTOM_SEARCH_KEY,
           cx: GOOGLE_SEARCH_ENGINE_ID,
-          q: id, // Assuming the event ID or unique identifier is searchable
+          q: `Korean event ${id}`, // Add Korean event from the first match, Assuming the event ID or unique identifier is searchable
         },
       }
     );
 
     const { items } = response.data;
+    console.log(
+      `response.data.items in eventController.js: ${response.data.items}`
+    );
 
     if (!items || items.length === 0) {
       return res.status(404).json({ error: "Event not found" });
@@ -45,6 +48,8 @@ const getEventDetail = async (req, res) => {
         event.displayLink ||
         "kovebox.com", // // Fallback toEnsure a fallback context link
     };
+
+    console.log(`Constructed Query in eventController.js: Korean event ${id}`);
 
     res.json(eventData);
     console.log(
