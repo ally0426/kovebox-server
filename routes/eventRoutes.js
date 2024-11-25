@@ -1,7 +1,7 @@
 const express = require("express");
 const { getEventDetail } = require("../controllers/eventController");
 
-const router = express.router();
+const router = express.Router();
 router.get("/:id", getEventDetail);
 module.exports = router;
 
