@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const scrapingRoutes = require("./routes/scrapingRoutes");
 const geocodingRoutes = require("./routes/geocodingRoutes");
+const eventRoutes = require("./routes/eventRoutes");
 
 // const {
 //   fetchGoogleCustomSearchResults,
@@ -25,6 +26,9 @@ app.use("/api", geocodingRoutes);
 // Route for Google Custom Search
 app.use("/api/search", scrapingRoutes);
 //app.get("/api/search", fetchGoogleCustomSearchResults);
+
+// Route for event detail page
+app.use("/api/event", eventRoutes);
 
 app.use((req, res, next) => {
   console.log(`Received request: ${req.method} ${req.originalUrl}`);

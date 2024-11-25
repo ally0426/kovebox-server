@@ -6,6 +6,7 @@ const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID;
 // Fetch event details by ID
 const getEventDetail = async (req, res) => {
   const { id } = req.params;
+  console.log(`id in eventController.js: ${id}`);
 
   if (!id) {
     return res.status(400).json({ error: "Event ID is required" });
@@ -46,6 +47,9 @@ const getEventDetail = async (req, res) => {
     };
 
     res.json(eventData);
+    console.log(
+      `eventData in eventController.js: ${JSON.stringify(eventData, null, 2)}`
+    );
   } catch (error) {
     console.error("Error fetching event details:", error.message);
     res.status(500).json({ error: "Failed to fetch event details" });
