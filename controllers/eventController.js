@@ -3,6 +3,15 @@ const axios = require("axios");
 const GOOGLE_CUSTOM_SEARCH_KEY = process.env.GOOGLE_CUSTOM_SEARCH_KEY;
 const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID;
 
+// Define keywords for the query
+const keywords = [
+  "Korean event",
+  "K-pop event",
+  "Korean cooking event",
+  "Korean course event",
+  "Korean language event",
+];
+
 // Fetch event details by ID
 const getEventDetail = async (req, res) => {
   const { id } = req.params;
@@ -13,6 +22,10 @@ const getEventDetail = async (req, res) => {
   }
 
   try {
+    // Build the query string
+    const query = `${keywords.join(" | ")} ${id}`;
+    console.log(`query in eventController.js: ${query}`);
+
     // Use Google Custom Search API to get the event details
     const response = await axios.get(
       `https://www.googleapis.com/customsearch/v1`,
@@ -20,7 +33,7 @@ const getEventDetail = async (req, res) => {
         params: {
           key: GOOGLE_CUSTOM_SEARCH_KEY,
           cx: GOOGLE_SEARCH_ENGINE_ID,
-          q: `Korean event ${id}`, // Add Korean event from the first match, Assuming the event ID or unique identifier is searchable
+          q: query, // Add Korean event from the first match, Assuming the event ID or unique identifier is searchable
         },
       }
     );
