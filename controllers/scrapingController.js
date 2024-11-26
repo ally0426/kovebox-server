@@ -1,5 +1,6 @@
 const axios = require("axios");
 const { Error } = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 
 const fetchGoogleCustomSearchResults = async (req, res) => {
   const apiKey = process.env.GOOGLE_CUSTOM_SEARCH_KEY;
@@ -34,6 +35,7 @@ const fetchGoogleCustomSearchResults = async (req, res) => {
 
     const items = Array.isArray(response.data.items)
       ? response.data.items.map((item) => ({
+          id: uuidv4(), // Generate a unique ID for each event
           title: item.title, // event title
           link: item.link, // Direct link to the image
           snippet: item.snippet, // event description
