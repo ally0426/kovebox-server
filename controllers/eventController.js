@@ -28,7 +28,7 @@ const getAllEvents = async (req, res) => {
         },
       }
     );
-    const items = response.json();
+    const items = response.data;
     console.log(`items in eventController.js: ${items}`);
     if (!items || items.length === 0) {
       return res.status(404).json({ error: "No events found " });
