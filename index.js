@@ -7,7 +7,7 @@ const eventRoutes = require("./routes/eventRoutes");
 
 // const {
 //   fetchGoogleCustomSearchResults,
-// } = require("./controllers/scrapingController");
+// } = require("./controllers/scrapingController"); // old controller for webscraping method, now use APIs instead!
 
 dotenv.config();
 
@@ -32,7 +32,13 @@ app.use("/api/search", scrapingRoutes);
 //app.get("/api/search", fetchGoogleCustomSearchResults);
 
 // Route for event detail page
-app.use("/api/event", eventRoutes);
+// app.use("/api/event", eventRoutes);
+
+// Route for event detail page
+app.use("/api/events/:id", eventRoutes); //fixed from api/event route
+
+// Route for all events
+app.use("/api/events", eventRoutes);
 
 app.use((req, res, next) => {
   console.log(`Received request: ${req.method} ${req.originalUrl}`);

@@ -1,8 +1,17 @@
 const express = require("express");
-const { getEventDetail } = require("../controllers/eventController");
+const {
+  getAllEvents,
+  getEventDetail,
+} = require("../controllers/eventController");
 
 const router = express.Router();
-router.get("/:id", getEventDetail);
+
+// Route to fetch all events
+router.get("/", getAllEvents); // events route
+
+// Route to fetch an event with id
+router.get("/:id", getEventDetail); // events/:id route (maybe need to update from event/:id)
+
 module.exports = router;
 
 // const express = require("express");

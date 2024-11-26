@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { v4: uuidv4 } = require("uuid");
 
 const GOOGLE_CUSTOM_SEARCH_KEY = process.env.GOOGLE_CUSTOM_SEARCH_KEY;
 const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID;
@@ -11,6 +12,49 @@ const keywords = [
   "Korean course event",
   "Korean language event",
 ];
+
+// fetch all events
+const getAllEvents = async (req, res) => {
+  try {
+    const query =
+      `${keywords.join(" | ")}` || "Korean events in Minneapolis this weekend"; // default query
+    const response = await axios.get(
+      "https://www.googleapis.com/customsearch/v1",
+      {
+        params: {
+          key: GOOGLE_CUSTOM_SEARCH_KEY,
+          cx: GOOGLE_SEARCH_ENGINE_ID,
+          q: query,
+        },
+      }
+    );
+    const items = response.json();
+    console.log(`items in eventController.js: ${items}`);
+    if (!items || items.length === 0) {
+      return res.status(404).json({ error: "No events found " });
+    }
+
+    // Generate UUID for each event
+    const events = items.map((item) => ({
+      id: uuidv4(), // Unique ID for each event
+      title: item.title,
+      link: item.link,
+      contextLink:
+        item.pagemap?.metatags?.[0]?.["og:url"] || // Extract Open Graph URL if available
+        item.image?.contextLink || // Fallback to the main link
+        item.displayLink ||
+        "kovebox.com", // // Fallback toEnsure a fallback context link
+    }));
+    res.json(events); // Return all events
+  } catch (error) {
+    console.error("Error fetching events: ", error.message);
+    res
+      .status(500)
+      .json({ error: "Failed to fetch events in eventController.js" });
+  }
+};
+
+// module.exports = { getAllEvents };
 
 // Fetch event details by ID
 const getEventDetail = async (req, res) => {
@@ -74,7 +118,7 @@ const getEventDetail = async (req, res) => {
   }
 };
 
-module.exports = { getEventDetail };
+module.exports = { getAllEvents, getEventDetail };
 
 // const Event = require("../models/eventModel");
 
