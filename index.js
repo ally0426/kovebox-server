@@ -35,7 +35,7 @@ app.use("/api/search", scrapingRoutes);
 // app.use("/api/event", eventRoutes);
 
 // Route for event detail page
-app.use("/api/events/:id", eventRoutes); //fixed from api/event route
+// app.use("/api/events/:id", eventRoutes); //fixed from api/event route
 
 // Route for all events
 app.use("/api/events", eventRoutes);
