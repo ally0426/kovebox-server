@@ -15,7 +15,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["https://kovebox.com", "https://www.kovebox.com"],
+    origin: [
+      "https://kovebox.com",
+      "https://www.kovebox.com",
+      "http://localhost:3000",
+    ],
   })
 );
 app.use(express.json());
