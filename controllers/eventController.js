@@ -37,6 +37,10 @@ const getAllEvents = async (req, res) => {
       return res.status(404).json({ error: "No events found " });
     }
 
+    console.log(
+      `items in eventController.js: ${JSON.stringify(items, null, 2)}`
+    );
+
     // Generate UUID for each event
     const events = items.map((item) => ({
       id: uuidv4(), // Unique ID for each event
