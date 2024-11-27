@@ -41,7 +41,7 @@ const getAllEvents = async (req, res) => {
     const events = items.map((item) => ({
       id: uuidv4(), // Unique ID for each event
       title: item.title,
-      link: item.link,
+      link: item.link || item.pagemap?.cse_image || item.pagemap?.cse_thumbnail,
       contextLink:
         item.pagemap?.metatags?.[0]?.["og:url"] || // Extract Open Graph URL if available
         item.image?.contextLink || // Fallback to the main link
