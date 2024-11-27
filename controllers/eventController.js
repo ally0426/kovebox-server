@@ -103,7 +103,7 @@ const getEventDetail = async (req, res) => {
       snippet: event.snippet,
       link: event.link || event.image?.thumbnailLink,
       contextLink:
-        event.pagemap?.metatags?.[0]?.["og:url"] || // Extract Open Graph URL if available
+        // event.pagemap?.metatags?.[0]?.["og:url"] || // Extract Open Graph URL if available
         event.image?.contextLink || // Fallback to the main link
         event.displayLink ||
         "kovebox.com", // // Fallback toEnsure a fallback context link
