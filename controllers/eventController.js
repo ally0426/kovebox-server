@@ -19,8 +19,12 @@ const keywords = [
 // fetch all events
 const getAllEvents = async (req, res) => {
   try {
+    const { offset = 0, limit = 10 } = req.query; // Get offset and limit from query params
     const query =
       `${keywords.join(" | ")}` || "Korean events in Minneapolis this weekend"; // default query
+    console.log(
+      `Fetching events with query: ${query}, offset: ${offset}, limit: ${limit}`
+    );
     const response = await axios.get(
       "https://www.googleapis.com/customsearch/v1",
       {
