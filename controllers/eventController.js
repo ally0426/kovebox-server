@@ -21,7 +21,7 @@ const getAllEvents = async (req, res) => {
   try {
     const { offset = 0, limit = 10 } = req.query; // Get offset and limit from query params
     const locationQuery =
-      latitude && longitude ? `${latitude} ${longitude}` : "Los Angeles, CA";
+      latitude && longitude ? `${latitude},${longitude}` : "Los Angeles, CA";
     const query =
       `${keywords.join(" | ")} near ${locationQuery}` ||
       "Korean events in Minneapolis this weekend"; // default query
