@@ -95,7 +95,6 @@ const getEventDetail = async (req, res) => {
   }
   res.json(event);
 
-  // if (!id) {
   //   return res.status(400).json({ error: "Event ID is required" });
   // }
 
