@@ -5,6 +5,8 @@ const { v4: uuidv4 } = require("uuid");
 const GOOGLE_CUSTOM_SEARCH_KEY = process.env.GOOGLE_CUSTOM_SEARCH_KEY;
 const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID;
 
+let eventDetailsCache = [];
+
 // Define keywords for the query
 const keywords = [
   "Korean event",
