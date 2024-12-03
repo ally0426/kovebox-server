@@ -45,7 +45,9 @@ const getAllEvents = async (req, res) => {
     const events = items.map((item) => ({
       id: uuidv4(), // Unique ID for each event
       title: item.title,
-      link: item.link || item.pagemap?.cse_image || item.pagemap?.cse_thumbnail,
+      snippet: item.snippet,
+      image:
+        item.pagemap?.cse_image || item.pagemap?.cse_thumbnail || item.link,
       contextLink:
         item.pagemap?.metatags?.[0]?.["og:url"] || // Extract Open Graph URL if available
         item.image?.contextLink || // Fallback to the main link
@@ -105,9 +107,10 @@ const getEventDetail = async (req, res) => {
       id: event.cacheId || id, // Fallback to `id` if `cacheId` is unavailable
       title: event.title,
       snippet: event.snippet,
-      link: event.link || event.image?.thumbnailLink,
+      image:
+        event.pagemap?.cse_image || event.pagemap?.cse_thumbnail || event.link,
       contextLink:
-        // event.pagemap?.metatags?.[0]?.["og:url"] || // Extract Open Graph URL if available
+        event.item.pagemap?.metatags?.[0]?.["og:url"] || // Extract Open Graph URL if available
         event.image?.contextLink || // Fallback to the main link
         event.displayLink ||
         "kovebox.com", // // Fallback toEnsure a fallback context link
