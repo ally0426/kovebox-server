@@ -20,8 +20,11 @@ const keywords = [
 const getAllEvents = async (req, res) => {
   try {
     const { offset = 0, limit = 10 } = req.query; // Get offset and limit from query params
+    const locationQuery =
+      latitude && longitude ? `${latitude} ${longitude}` : "Los Angeles, CA";
     const query =
-      `${keywords.join(" | ")}` || "Korean events in Minneapolis this weekend"; // default query
+      `${keywords.join(" | ")} near ${locationQuery}` ||
+      "Korean events in Minneapolis this weekend"; // default query
     console.log(
       `Fetching events with query: ${query}, offset: ${offset}, limit: ${limit}`
     );
@@ -32,6 +35,8 @@ const getAllEvents = async (req, res) => {
           key: GOOGLE_CUSTOM_SEARCH_KEY,
           cx: GOOGLE_SEARCH_ENGINE_ID,
           q: query,
+          start: parseInt(offset) + 1, // Custom Search API uses 1-based indexing
+          num: parseInt(limit),
         },
       }
     );
