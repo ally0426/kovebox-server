@@ -18,7 +18,6 @@ const keywords = [
 
 // fetch all events
 const getAllEvents = async (req, res) => {
-  console.log("Google API Query: ", query);
   try {
     const { offset = 0, limit = 10 } = req.query; // Get offset and limit from query params
 
@@ -46,7 +45,7 @@ const getAllEvents = async (req, res) => {
     // Construct the query string
     const query =
       `${keywords.join(" | ")} near ${locationQuery}` ||
-      "Korean events in Minneapolis this weekend"; // default query
+      "Korean events in Los Angeles, CA this weekend"; // default query
     console.log(
       `Fetching events with query: ${query}, offset: ${offset}, limit: ${limit}`
     );
