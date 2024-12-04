@@ -18,19 +18,26 @@ const keywords = [
 
 // fetch all events
 const getAllEvents = async (req, res) => {
+  console.log("Google API Query: ", query);
   try {
     const { offset = 0, limit = 10 } = req.query; // Get offset and limit from query params
 
     // Validate latitude and longitude
-    let locationQuery = 'Los Angeles, CA'; // Default location
+    let locationQuery = "Los Angeles, CA"; // Default location
+    console.log(
+      `Received latitude and longitude: ${latitude} and ${longitude}`
+    );
     if (latitude && longitude) {
       if (!isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
         locationQuery = `${latitude},${longitude}`;
+        console.log("Valid location detected: ", locationQuery);
       } else {
-        console.warn('Invalid latitude/longitude provided. Falling back to default location.');
+        console.warn(
+          "Invalid latitude/longitude provided. Falling back to default location."
+        );
       }
     }
-    
+
     const query =
       `${keywords.join(" | ")} near ${locationQuery}` ||
       "Korean events in Minneapolis this weekend"; // default query
@@ -95,7 +102,12 @@ const getAllEvents = async (req, res) => {
     });
     res.json(events); // Return all events
   } catch (error) {
-    console.error("Error fetching events: ", error.message);
+    console.error("Error fetching events: ", {
+      message: error.message,
+      stack: error.stack,
+      response:
+        error.response?.data || "No response data in eventController.js",
+    });
     res
       .status(500)
       .json({ error: "Failed to fetch events in eventController.js" });
