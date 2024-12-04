@@ -27,6 +27,7 @@ const getAllEvents = async (req, res) => {
     console.log(
       `Received latitude and longitude: ${latitude} and ${longitude}`
     );
+
     if (latitude && longitude) {
       if (!isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
         locationQuery = `${latitude},${longitude}`;
@@ -36,8 +37,13 @@ const getAllEvents = async (req, res) => {
           "Invalid latitude/longitude provided. Falling back to default location."
         );
       }
+    } else {
+      console.warn(
+        "Missing latitude/longitude. Falling back to default location."
+      );
     }
 
+    // Construct the query string
     const query =
       `${keywords.join(" | ")} near ${locationQuery}` ||
       "Korean events in Minneapolis this weekend"; // default query
