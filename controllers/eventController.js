@@ -20,8 +20,17 @@ const keywords = [
 const getAllEvents = async (req, res) => {
   try {
     const { offset = 0, limit = 10 } = req.query; // Get offset and limit from query params
-    const locationQuery =
-      latitude && longitude ? `${latitude},${longitude}` : "Los Angeles, CA";
+
+    // Validate latitude and longitude
+    let locationQuery = 'Los Angeles, CA'; // Default location
+    if (latitude && longitude) {
+      if (!isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
+        locationQuery = `${latitude},${longitude}`;
+      } else {
+        console.warn('Invalid latitude/longitude provided. Falling back to default location.');
+      }
+    }
+    
     const query =
       `${keywords.join(" | ")} near ${locationQuery}` ||
       "Korean events in Minneapolis this weekend"; // default query
