@@ -19,8 +19,12 @@ const keywords = [
 // fetch all events
 const getAllEvents = async (req, res) => {
   try {
-    const { offset = 0, limit = 10 } = req.query; // Get offset and limit from query params
-
+    // Ensure default values for offset, limit, latitude, and longitude
+    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
+    const latitude = req.query.latitude || null;
+    const longitude = req.query.longitude || null
+    
     // Validate latitude and longitude
     let locationQuery = "Los Angeles, CA"; // Default location
     console.log(
