@@ -47,8 +47,8 @@ const getAllEvents = async (req, res) => {
     }
 
     // Construct the query string
-    const query =
-      `${keywords.join(" | ")} near ${locationQuery}` ||
+    const query = `"Korean event" OR "K-pop event" OR "Korean cooking event" OR "Korean course event" OR "Korean language event" near ${locationQuery}`
+      ||
       "Korean events in Los Angeles, CA this weekend"; // default query
     console.log(
       `Fetching events with query: ${query}, offset: ${offset}, limit: ${limit}`
