@@ -47,7 +47,8 @@ const getAllEvents = async (req, res) => {
     }
 
     // Construct the query string
-    const query = `${keywords} near ${locationQuery}`
+    const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" OR ");
+    const query = `${keywordQuery} near ${locationQuery}`
       ||
       "Korean events in Los Angeles, CA this weekend"; // default query
     console.log(
