@@ -10,10 +10,10 @@ let eventDetailsCache = [];
 // Define keywords for the query
 const keywords = [
   "Korean event",
-  "K-pop",
-  "Korean cooking",
-  "Korean course",
-  "Korean language",
+  "K-pop event",
+  "Korean cooking event",
+  "Korean course event",
+  "Korean language event",
 ];
 
 // fetch all events
@@ -72,7 +72,7 @@ const getAllEvents = async (req, res) => {
       `Google API response in eventController.js: ${JSON.stringify(response.data, null, 2)}`
     );
     if (!items || items.length === 0) {
-      return res.status(404).json({ error: "No events found " });
+      return res.status(404).json({ error: "404 error- No events found " });
     }
 
     console.log(
@@ -120,7 +120,7 @@ const getAllEvents = async (req, res) => {
     });
     res
       .status(500)
-      .json({ error: "Failed to fetch events in eventController.js" });
+      .json({ error: "500 error' Failed to fetch events in eventController.js" });
   }
 };
 
@@ -137,7 +137,7 @@ const getEventDetail = async (req, res) => {
   }
   res.json(event);
 
-  //   return res.status(400).json({ error: "Event ID is required" });
+  //   return res.status(400).json({ error: "400 error- Event ID is required" });
   // }
 
   // try {
