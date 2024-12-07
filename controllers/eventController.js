@@ -69,7 +69,7 @@ const getAllEvents = async (req, res) => {
     console.log(`query in eventController.js: ${query}`);
     const { items } = response.data;
     console.log(
-      `Google API response - items in eventController.js: ${JSON.stringify(response.data.items, null, 2)}`
+      `Google API response in eventController.js: ${JSON.stringify(response.data, null, 2)}`
     );
     if (!items || items.length === 0) {
       return res.status(404).json({ error: "No events found " });
