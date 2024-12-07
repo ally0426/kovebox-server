@@ -10,10 +10,10 @@ let eventDetailsCache = [];
 // Define keywords for the query
 const keywords = [
   "Korean event",
-  "K-pop event",
-  "Korean cooking event",
-  "Korean course event",
-  "Korean language event",
+  "K-pop",
+  "Korean cooking",
+  "Korean course",
+  "Korean language",
 ];
 
 // fetch all events
@@ -69,7 +69,7 @@ const getAllEvents = async (req, res) => {
     console.log(`query in eventController.js: ${query}`);
     const { items } = response.data;
     console.log(
-      `Google API response - items in eventController.js: ${response.data}`
+      `Google API response - items in eventController.js: ${JSON.stringify(response.data.items, null, 2)}`
     );
     if (!items || items.length === 0) {
       return res.status(404).json({ error: "No events found " });
