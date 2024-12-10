@@ -1,84 +1,47 @@
-const axios = require("axios");
-const cheerio = require("cheerio");
-const { v4: uuidv4 } = require("uuid");
 
-const GOOGLE_CUSTOM_SEARCH_KEY = process.env.GOOGLE_CUSTOM_SEARCH_KEY;
-const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID;
-
-let eventDetailsCache = [];
-
-// Define keywords for the query
-const keywords = [
-  "Korean event",
-  "K-pop event",
-  "Korean cooking event",
-  "Korean course event",
-  "Korean language event",
-];
-
-// fetch all events
 const getAllEvents = async (req, res) => {
   try {
-    // Ensure default values for offset, limit, latitude, and longitude
-    const offset = req.query.offset ? parseInt(req.query.offset) : 0;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 10;
-    const latitude = req.query.latitude || null;
-    const longitude = req.query.longitude || null
-    
-    // Validate latitude and longitude
-    let locationQuery = "Los Angeles, CA"; // Default location
-    console.log(
-      `Received latitude and longitude: ${latitude} and ${longitude}`
-    );
+    const { offset = 0, limit = 10, latitude, longitude } = req.query;
 
+    console.log("Received query parameters:", { offset, limit, latitude, longitude });
+
+    let locationQuery = 'Los Angeles, CA';
     if (latitude && longitude) {
       if (!isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
         locationQuery = `${latitude},${longitude}`;
-        console.log("Valid location detected: ", locationQuery);
-      } else {
-        console.warn(
-          "Invalid latitude/longitude provided. Falling back to default location."
-        );
       }
-    } else {
-      console.warn(
-        "Missing latitude/longitude. Falling back to default location."
-      );
     }
 
-    // Construct the query string
+    const keywords = [
+      "Korean event",
+      "K-pop event",
+      "Korean cooking event",
+      "Korean course event",
+      "Korean language event",
+    ];
     const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" OR ");
-    const query = `${keywordQuery} near ${locationQuery}`
-      ||
-      "Korean events in Los Angeles, CA this weekend"; // default query
-    console.log(
-      `Fetching events with query: ${query}, offset: ${offset}, limit: ${limit}`
-    );
-    const response = await axios.get(
-      "https://www.googleapis.com/customsearch/v1",
-      {
-        params: {
-          key: GOOGLE_CUSTOM_SEARCH_KEY,
-          cx: GOOGLE_SEARCH_ENGINE_ID,
-          q: query,
-          start: parseInt(offset) + 1, // Custom Search API uses 1-based indexing
-          num: parseInt(limit),
-        },
-      }
-    );
-    console.log(`query in eventController.js: ${query}`);
+    const query = `${keywordQuery} near ${locationQuery}`;
+    console.log("Constructed query:", query);
+
+    const response = await axios.get(`https://www.googleapis.com/customsearch/v1`, {
+      params: {
+        key: process.env.GOOGLE_CUSTOM_SEARCH_KEY,
+        cx: process.env.GOOGLE_SEARCH_ENGINE_ID,
+        q: query,
+        start: parseInt(offset) + 1,
+        num: parseInt(limit),
+      },
+    });
+
+    console.log("Google API response:", response.data);
+
     const { items } = response.data;
-    console.log(
-      `Google API response in eventController.js: ${JSON.stringify(response.data, null, 2)}`
-    );
-    if (!items || items.length === 0) {
-      return res.status(404).json({ error: "404 error- No events found " });
+
+    if (!items || !Array.isArray(items)) {
+      console.error("No items found in the Google API response.");
+      return res.status(404).json({ error: "No events found." });
     }
-
-    console.log(
-      `items in eventController.js: ${JSON.stringify(items, null, 2)}`
-    );
-
+    
     // Generate UUID for each event
     const events = items.map((item) => {
       if (item.pagemap?.cse_image?.[0]?.src) {
