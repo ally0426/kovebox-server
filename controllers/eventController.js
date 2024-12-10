@@ -1,5 +1,6 @@
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
+const eventDetailsCache = {};
 
 const getAllEvents = async (req, res) => {
   try {
@@ -101,70 +102,58 @@ const getAllEvents = async (req, res) => {
 
 // Fetch event details by ID
 const getEventDetail = async (req, res) => {
-  const { id } = req.params;
-  console.log(`id in eventController.js: ${id}`);
+  try {
+    const { id } = req.params;
 
-  const event = eventDetailsCache.find((e) => e.id === id);
-  if (!event) {
-    return res.status(404).json({ error: "Event not Found" });
+    // Check if the event is already cached
+    if (eventDetailsCache[id]) {
+      console.log(`Fetching event detail from cache for ID: ${id}`);
+      return res.json(eventDetailsCache[id]);
+    }
+
+    // Assume we're using Google API to fetch event detail
+    const response = await axios.get(
+      `https://www.googleapis.com/customsearch/v1`,
+      {
+        params: {
+          key: process.env.GOOGLE_CUSTOM_SEARCH_KEY,
+          cx: process.env.GOOGLE_SEARCH_ENGINE_ID,
+          q: id, // Assuming ID is used as the query here
+        },
+      }
+    );
+
+    const { items } = response.data;
+
+    if (!items || !Array.isArray(items)) {
+      console.error("No event details found in the Google API response.");
+      return res.status(404).json({ error: "No event details found." });
+    }
+
+    const eventDetail = {
+      title: items[0].title || "No title available",
+      snippet: items[0].snippet || "No description available",
+      link: items[0].link || "No link available",
+      image:
+        items[0].pagemap?.cse_image?.[0]?.src ||
+        items[0].pagemap?.cse_image[0].src ||
+        items[0].pagemap?.cse_thumbnail[0].src ||
+        items[0].link ||
+        null,
+    };
+
+    // Cache the event detail
+    eventDetailsCache[id] = eventDetail;
+
+    res.json(eventDetail);
+  } catch (error) {
+    console.error("Error in getEventDetail:", {
+      message: error.message,
+      stack: error.stack,
+      response: error.response?.data || "No response data",
+    });
+    res.status(500).json({ error: "Failed to fetch event detail." });
   }
-  res.json(event);
-
-  //   return res.status(400).json({ error: "400 error- Event ID is required" });
-  // }
-
-  // try {
-  //   // Build the query string
-  //   const query = `${keywords.join(" | ")} ${id}`;
-  //   console.log(`query in eventController.js: ${query}`);
-
-  //   // Use Google Custom Search API to get the event details
-  //   const response = await axios.get(
-  //     `https://www.googleapis.com/customsearch/v1`,
-  //     {
-  //       params: {
-  //         key: GOOGLE_CUSTOM_SEARCH_KEY,
-  //         cx: GOOGLE_SEARCH_ENGINE_ID,
-  //         q: query, // Add Korean event from the first match, Assuming the event ID or unique identifier is searchable
-  //       },
-  //     }
-  //   );
-
-  //   const { items } = response.data;
-  //   console.log(
-  //     `response.data.items in eventController.js: ${response.data.items}`
-  //   );
-
-  //   if (!items || items.length === 0) {
-  //     return res.status(404).json({ error: "Event not found" });
-  //   }
-
-  //   // Extract the first matching event
-  //   const event = items[0];
-
-  //   const eventData = {
-  //     id: event.cacheId || id, // Fallback to `id` if `cacheId` is unavailable
-  //     title: event.title,
-  //     snippet: event.snippet,
-  //     image:
-  //       event.pagemap?.cse_image || event.pagemap?.cse_thumbnail || event.link,
-  //     contextLink:
-  //       event.item.pagemap?.metatags?.[0]?.["og:url"] || // Extract Open Graph URL if available
-  //       event.image?.contextLink || // Fallback to the main link
-  //       event.displayLink ||
-  //       "kovebox.com", // // Fallback toEnsure a fallback context link
-  //   };
-
-  //   console.log(`Constructed Query in eventController.js: Korean event ${id}`);
-
-  //   res.json(eventData);
-  //   console.log(
-  //     `eventData in eventController.js: ${JSON.stringify(eventData, null, 2)}`
-  //   );
-  // } catch (error) {
-  //   console.error("Error fetching event details:", error.message);
-  //   res.status(500).json({ error: "Failed to fetch event details" });
-  // }
 };
 
 module.exports = { getAllEvents, getEventDetail };
