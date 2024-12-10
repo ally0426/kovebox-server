@@ -1,11 +1,17 @@
+const axios = require("axios");
 
 const getAllEvents = async (req, res) => {
   try {
     const { offset = 0, limit = 10, latitude, longitude } = req.query;
 
-    console.log("Received query parameters:", { offset, limit, latitude, longitude });
+    console.log("Received query parameters:", {
+      offset,
+      limit,
+      latitude,
+      longitude,
+    });
 
-    let locationQuery = 'Los Angeles, CA';
+    let locationQuery = "Los Angeles, CA";
     if (latitude && longitude) {
       if (!isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
         locationQuery = `${latitude},${longitude}`;
@@ -23,15 +29,18 @@ const getAllEvents = async (req, res) => {
     const query = `${keywordQuery} near ${locationQuery}`;
     console.log("Constructed query:", query);
 
-    const response = await axios.get(`https://www.googleapis.com/customsearch/v1`, {
-      params: {
-        key: process.env.GOOGLE_CUSTOM_SEARCH_KEY,
-        cx: process.env.GOOGLE_SEARCH_ENGINE_ID,
-        q: query,
-        start: parseInt(offset) + 1,
-        num: parseInt(limit),
-      },
-    });
+    const response = await axios.get(
+      `https://www.googleapis.com/customsearch/v1`,
+      {
+        params: {
+          key: process.env.GOOGLE_CUSTOM_SEARCH_KEY,
+          cx: process.env.GOOGLE_SEARCH_ENGINE_ID,
+          q: query,
+          start: parseInt(offset) + 1,
+          num: parseInt(limit),
+        },
+      }
+    );
 
     console.log("Google API response:", response.data);
 
@@ -41,7 +50,7 @@ const getAllEvents = async (req, res) => {
       console.error("No items found in the Google API response.");
       return res.status(404).json({ error: "No events found." });
     }
-    
+
     // Generate UUID for each event
     const events = items.map((item) => {
       if (item.pagemap?.cse_image?.[0]?.src) {
@@ -81,9 +90,9 @@ const getAllEvents = async (req, res) => {
       response:
         error.response?.data || "No response data in eventController.js",
     });
-    res
-      .status(500)
-      .json({ error: "500 error' Failed to fetch events in eventController.js" });
+    res.status(500).json({
+      error: "500 error' Failed to fetch events in eventController.js",
+    });
   }
 };
 
