@@ -69,8 +69,7 @@ const getAllEvents = async (req, res) => {
       }
       console.log("Resolved image: ", image);
 
-      // Create an event object
-      const event = {
+      return {
         id: uuidv4(), // Unique ID for each event
         title: item.title,
         snippet: item.snippet,
@@ -81,8 +80,6 @@ const getAllEvents = async (req, res) => {
           item.displayLink ||
           "kovebox.com", // // Fallback toEnsure a fallback context link
       };
-      eventDetailsCache.push(event);
-      return event;
     });
     res.json(events); // Return all events
   } catch (error) {
