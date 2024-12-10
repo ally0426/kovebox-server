@@ -24,7 +24,9 @@
     "puppeteer-core": "^10.1.0",
     "stripe": "^17.1.0",
     "twilio": "^5.3.3",
-    "uuid": "^11.0.3"
+    "uuid": "^11.0.3",
+    "uuid4": "^2.0.3",
+    "uuidv4": "^6.2.13"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
