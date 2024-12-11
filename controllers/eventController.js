@@ -129,6 +129,7 @@ const getEventDetail = async (req, res) => {
         .status(404)
         .json({ error: "404 error- No event details found." });
     }
+    res.status(200).json(events);
 
     const eventDetail = {
       title: items[0].title || "No title available",
