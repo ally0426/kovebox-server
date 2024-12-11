@@ -27,7 +27,7 @@ const getAllEvents = async (req, res) => {
       "Korean course event",
       "Korean language event",
     ];
-    const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" OR ");
+    const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" | "); // | instead of OR
     const query = `${keywordQuery} near ${locationQuery}`;
     console.log("Constructed query:", query);
 
@@ -125,7 +125,9 @@ const getEventDetail = async (req, res) => {
 
     if (!items || !Array.isArray(items)) {
       console.error("No event details found in the Google API response.");
-      return res.status(404).json({ error: "404 error- No event details found." });
+      return res
+        .status(404)
+        .json({ error: "404 error- No event details found." });
     }
 
     const eventDetail = {
