@@ -50,7 +50,7 @@ const getAllEvents = async (req, res) => {
 
     if (!items || !Array.isArray(items)) {
       console.error("No items found in the Google API response.");
-      return res.status(404).json({ error: "No events found." });
+      return res.status(404).json({ error: "404 error- No events found." });
     }
 
     // Generate UUID for each event
@@ -82,6 +82,7 @@ const getAllEvents = async (req, res) => {
       };
     });
     res.json(events); // Return all events
+    console.log(`Mapped events: ${events}`);
   } catch (error) {
     console.error("Error fetching events: ", {
       message: error.message,
@@ -124,7 +125,7 @@ const getEventDetail = async (req, res) => {
 
     if (!items || !Array.isArray(items)) {
       console.error("No event details found in the Google API response.");
-      return res.status(404).json({ error: "No event details found." });
+      return res.status(404).json({ error: "404 error- No event details found." });
     }
 
     const eventDetail = {
@@ -149,7 +150,7 @@ const getEventDetail = async (req, res) => {
       stack: error.stack,
       response: error.response?.data || "No response data",
     });
-    res.status(500).json({ error: "Failed to fetch event detail." });
+    res.status(500).json({ error: "500 error- Failed to fetch event detail." });
   }
 };
 
@@ -163,7 +164,7 @@ module.exports = { getAllEvents, getEventDetail };
 //     const events = await Event.find();
 //     res.json(events);
 //   } catch (error) {
-//     res.status(500).json({ message: "Failed to fetch events" });
+//     res.status(500).json({ message: "500 error- Failed to fetch events" });
 //   }
 // };
 
@@ -183,7 +184,7 @@ module.exports = { getAllEvents, getEventDetail };
 //     const savedEvent = await event.save();
 //     res.status(201).json(savedEvent);
 //   } catch (error) {
-//     res.status(500).json({ message: "Failed to create event" });
+//     res.status(500).json({ message: "500 error- Failed to create event" });
 //   }
 // };
 
@@ -193,9 +194,9 @@ module.exports = { getAllEvents, getEventDetail };
 //     const event = await Event.findByIdAndUpdate(req.params.id, req.body, {
 //       new: true,
 //     });
-//     if (!event) return res.status(404).json({ message: "Event not found" });
+//     if (!event) return res.status(404).json({ message: "404 error- Event not found" });
 //     res.json(event);
 //   } catch (error) {
-//     res.status(500).json({ message: "Failed to update event" });
+//     res.status(500).json({ message: "500 error- Failed to update event" });
 //   }
 // };
