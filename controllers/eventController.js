@@ -82,7 +82,7 @@ const getAllEvents = async (req, res) => {
       };
     });
     res.json(events); // Return all events
-    console.log(`Mapped events: ${events}`);
+    console.log(`Mapped events: ${JSON.stringify(events, null, 2)}`);
   } catch (error) {
     console.error("Error fetching events: ", {
       message: error.message,
