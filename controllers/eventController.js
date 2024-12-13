@@ -21,14 +21,14 @@ const getAllEvents = async (req, res) => {
     }
 
     const keywords = [
-      "Korean",
-      "K-pop",
-      "Korean cooking",
-      "Korean course",
-      "Korean language",
+      "Korean events",
+      "K-pop events",
+      "Korean cooking events",
+      "Korean course events",
+      "Korean language events",
     ];
-    const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" "); // | instead of OR
-    const query = `${keywordQuery} event ${locationQuery}`;
+    const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" OR "); // | instead of OR
+    const query = `${keywordQuery} ${locationQuery}`;
     console.log("Constructed query:", query);
 
     const response = await axios.get(
