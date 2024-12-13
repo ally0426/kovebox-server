@@ -9,7 +9,7 @@ const getAllEvents = async (req, res) => {
 
     let locationDescription = "United States"; // Default to all USA events
     if (latitude && longitude) {
-      locationDescription = `${latitude},${longitude}`;
+      locationDescription = `near ${latitude},${longitude}`;
     } else if (searchQuery) {
       locationDescription = searchQuery;
     }
@@ -23,7 +23,7 @@ const getAllEvents = async (req, res) => {
     ];
 
     const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" OR ");
-    const query = `${keywordQuery} near ${locationDescription}`;
+    const query = `${keywordQuery} ${locationDescription}`;
 
     console.log("Constructed query:", query);
 
