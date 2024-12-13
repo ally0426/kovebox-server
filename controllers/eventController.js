@@ -1,98 +1,80 @@
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
-const eventDetailsCache = {};
 
 const getAllEvents = async (req, res) => {
   try {
-    const { offset = 0, limit = 10, latitude, longitude } = req.query;
+    const { offset = 0, limit = 10, latitude, longitude, searchQuery } = req.query;
 
-    console.log("Received query parameters:", {
-      offset,
-      limit,
-      latitude,
-      longitude,
-    });
+    console.log("Received query parameters:", { offset, limit, latitude, longitude, searchQuery });
 
-    let locationQuery = "Los Angeles, CA";
+    let locationDescription = "United States"; // Default to all USA events
     if (latitude && longitude) {
-      if (!isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
-        locationQuery = `${latitude},${longitude}`;
-      }
+      locationDescription = `${latitude},${longitude}`;
+    } else if (searchQuery) {
+      locationDescription = searchQuery;
     }
 
     const keywords = [
       "Korean events",
       "K-pop events",
       "Korean cooking events",
-      "Korean course events",
-      "Korean language events",
+      "Korean cultural events",
+      "Korean language classes",
     ];
-    const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" OR "); // | instead of OR
-    const query = `${keywordQuery} ${locationQuery}`;
+
+    const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" OR ");
+    const query = `${keywordQuery} near ${locationDescription}`;
+
     console.log("Constructed query:", query);
 
-    const response = await axios.get(
-      `https://www.googleapis.com/customsearch/v1`,
-      {
-        params: {
-          key: process.env.GOOGLE_CUSTOM_SEARCH_KEY,
-          cx: process.env.GOOGLE_SEARCH_ENGINE_ID,
-          q: query,
-          start: parseInt(offset) + 1,
-          num: parseInt(limit),
-        },
-      }
-    );
-
-    console.log("Google API response:", response.data);
+    const response = await axios.get(`https://www.googleapis.com/customsearch/v1`, {
+      params: {
+        key: process.env.GOOGLE_CUSTOM_SEARCH_KEY,
+        cx: process.env.GOOGLE_SEARCH_ENGINE_ID,
+        q: query,
+        start: parseInt(offset) + 1,
+        num: parseInt(limit),
+      },
+    });
 
     const { items } = response.data;
 
     if (!items || !Array.isArray(items)) {
       console.error("No items found in the Google API response.");
-      return res.status(404).json({ error: "404 error- No events found." });
+      return res.status(404).json({ error: "No events found." });
     }
 
-    // Generate UUID for each event
     const events = items.map((item) => {
-      if (item.pagemap?.cse_image?.[0]?.src) {
-        image = item.pagemap?.cse_image?.[0]?.src;
-      } else if (item.pagemap?.cse_image) {
-        image = item.pagemap?.cse_image[0].src;
-      } else if (item.pagemap?.cse_thumbnail) {
-        image = item.pagemap?.cse_thumbnail[0].src;
-      } else if (item.link) {
-        image = item.link;
-      } else {
-        const $ = cheerio.load(item.snippet);
-        image = $("img").first().attr("src") || null;
-      }
-      console.log("Resolved image: ", image);
+      let image = null;
 
+      if (item.pagemap?.cse_image?.[0]?.src) {
+        image = item.pagemap.cse_image[0].src;
+      } else if (item.pagemap?.cse_thumbnail?.[0]?.src) {
+        image = item.pagemap.cse_thumbnail[0].src;
+      } else {
+        image = item.link
+      }
+console.log("image: ", image);
+      
       return {
-        id: uuidv4(), // Unique ID for each event
-        title: item.title,
-        snippet: item.snippet,
-        image: image,
-        contextLink:
-          item.pagemap?.metatags?.[0]?.["og:url"] || // Extract Open Graph URL if available
-          item.image?.contextLink || // Fallback to the main link
-          item.displayLink ||
-          "kovebox.com", // // Fallback toEnsure a fallback context link
+        id: uuidv4(),
+        title: item.title || "No title available",
+        snippet: item.snippet || "No description available",
+        image: image || null,
+        contextLink: item.link || "https://example.com",
       };
     });
-    res.json(events); // Return all events
-    console.log(`Mapped events: ${JSON.stringify(events, null, 2)}`);
+
+    console.log("Mapped Events:", events);
+
+    res.json(events);
   } catch (error) {
-    console.error("Error fetching events: ", {
+    console.error("Error in getAllEvents:", {
       message: error.message,
       stack: error.stack,
-      response:
-        error.response?.data || "No response data in eventController.js",
+      response: error.response?.data || "No response data",
     });
-    res.status(500).json({
-      error: "500 error' Failed to fetch events in eventController.js",
-    });
+    res.status(500).json({ error: "Failed to fetch events." });
   }
 };
 
