@@ -27,8 +27,8 @@ const getAllEvents = async (req, res) => {
       "Korean course",
       "Korean language",
     ];
-    const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" | "); // | instead of OR
-    const query = `${keywordQuery} event near ${locationQuery}`;
+    const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" "); // | instead of OR
+    const query = `${keywordQuery} event ${locationQuery}`;
     console.log("Constructed query:", query);
 
     const response = await axios.get(
