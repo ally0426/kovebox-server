@@ -1,6 +1,6 @@
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
-const getNearbyCities = require("../utilities/getNearbyCities");
+const getNearbyCities = require("../utils/getNearbyCities");
 
 const getAllEvents = async (req, res) => {
   try {
