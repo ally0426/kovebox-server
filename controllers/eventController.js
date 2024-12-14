@@ -1,5 +1,6 @@
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
+const getNearbyCities = require("../utilities/getNearbyCities");
 
 const getAllEvents = async (req, res) => {
   try {
@@ -9,7 +10,9 @@ const getAllEvents = async (req, res) => {
 
     let locationDescription = "United States"; // Default to all USA events
     if (latitude && longitude) {
-      locationDescription = `near ${latitude},${longitude}`;
+      const citiesNearby = await getNearbyCities(latitude, longitude);
+        locationDescription = citiesNearby.join(" OR ");
+      // locationDescription = `near ${latitude},${longitude}`;
     } else if (searchQuery) {
       locationDescription = searchQuery;
     }
