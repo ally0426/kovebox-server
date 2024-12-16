@@ -1,6 +1,6 @@
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
-const getNearbyCities = require("../utils/getNearbyCities");
+const getNearbyCities = require("../utils/getNearbyCities"); // Import the utility function
 
 const getAllEvents = async (req, res) => {
   try {
@@ -8,13 +8,14 @@ const getAllEvents = async (req, res) => {
 
     console.log("Received query parameters:", { offset, limit, latitude, longitude, searchQuery });
 
-    let locationDescription = "United States"; // Default to all USA events
+    let locationQuery = "United States"; // Default to all USA events
+
+    // Use latitude and longitude to fetch nearby cities or fallback to the provided search query
     if (latitude && longitude) {
-      const citiesNearby = await getNearbyCities(latitude, longitude);
-        locationDescription = citiesNearby.join(" OR ");
-      // locationDescription = `near ${latitude},${longitude}`;
+      const nearbyCities = await getNearbyCities(latitude, longitude);
+      locationQuery = nearbyCities.join(" OR ");
     } else if (searchQuery) {
-      locationDescription = searchQuery;
+      locationQuery = searchQuery;
     }
 
     const keywords = [
@@ -26,7 +27,7 @@ const getAllEvents = async (req, res) => {
     ];
 
     const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" OR ");
-    const query = `${keywordQuery} ${locationDescription}`;
+    const query = `${keywordQuery} ${locationQuery}`;
 
     console.log("Constructed query:", query);
 
@@ -35,7 +36,7 @@ const getAllEvents = async (req, res) => {
         key: process.env.GOOGLE_CUSTOM_SEARCH_KEY,
         cx: process.env.GOOGLE_SEARCH_ENGINE_ID,
         q: query,
-        start: parseInt(offset) + 1,
+        start: parseInt(offset) + 1, // Google API uses 1-based indexing
         num: parseInt(limit),
       },
     });
@@ -50,21 +51,30 @@ const getAllEvents = async (req, res) => {
     const events = items.map((item) => {
       let image = null;
 
+      // Extract image
       if (item.pagemap?.cse_image?.[0]?.src) {
         image = item.pagemap.cse_image[0].src;
       } else if (item.pagemap?.cse_thumbnail?.[0]?.src) {
         image = item.pagemap.cse_thumbnail[0].src;
-      } else {
-        image = item.link
       }
-console.log("image: ", image);
-      
+
+      // Extract location (if available)
+      const location = item.pagemap?.metatags?.[0]?.["og:location"] || "Unknown location";
+
+      // Extract time using regex for AM/PM or numbers
+      const snippet = item.snippet || "";
+      const timeRegex = /(\d{1,2}:\d{2}\s?(AM|PM))|(\d{1,2}\s?(AM|PM))/i;
+      const timeMatch = snippet.match(timeRegex);
+      const time = timeMatch ? timeMatch[0] : "Time not available";
+
       return {
         id: uuidv4(),
         title: item.title || "No title available",
-        snippet: item.snippet || "No description available",
+        snippet: snippet || "No description available",
         image: image || null,
         contextLink: item.link || "https://example.com",
+        location,
+        time,
       };
     });
 
