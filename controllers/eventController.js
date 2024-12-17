@@ -1,6 +1,5 @@
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
-const getNearbyCities = require("../utils/getNearbyCities"); // Import the utility function
 
 const getAllEvents = async (req, res) => {
   try {
@@ -8,16 +7,15 @@ const getAllEvents = async (req, res) => {
 
     console.log("Received query parameters:", { offset, limit, latitude, longitude, searchQuery });
 
-    let locationQuery = "United States"; // Default to all USA events
-
-    // Use latitude and longitude to fetch nearby cities or fallback to the provided search query
+    // Default query location
+    let locationQuery = "United States";
     if (latitude && longitude) {
-      const nearbyCities = await getNearbyCities(latitude, longitude);
-      locationQuery = nearbyCities.join(" OR ");
+      locationQuery = `near ${latitude},${longitude}`;
     } else if (searchQuery) {
       locationQuery = searchQuery;
     }
 
+    // Keywords for Korean events
     const keywords = [
       "Korean events",
       "K-pop events",
@@ -29,14 +27,13 @@ const getAllEvents = async (req, res) => {
     const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" OR ");
     const query = `${keywordQuery} ${locationQuery}`;
 
-    console.log("Constructed query:", query);
-
+    // Fetch data from Google Custom Search API
     const response = await axios.get(`https://www.googleapis.com/customsearch/v1`, {
       params: {
         key: process.env.GOOGLE_CUSTOM_SEARCH_KEY,
         cx: process.env.GOOGLE_SEARCH_ENGINE_ID,
         q: query,
-        start: parseInt(offset) + 1, // Google API uses 1-based indexing
+        start: parseInt(offset) + 1,
         num: parseInt(limit),
       },
     });
@@ -48,33 +45,48 @@ const getAllEvents = async (req, res) => {
       return res.status(404).json({ error: "No events found." });
     }
 
+    // Map the response to event format
     const events = items.map((item) => {
+      // Extract image with fallback
       let image = null;
-
-      // Extract image
       if (item.pagemap?.cse_image?.[0]?.src) {
         image = item.pagemap.cse_image[0].src;
       } else if (item.pagemap?.cse_thumbnail?.[0]?.src) {
         image = item.pagemap.cse_thumbnail[0].src;
       }
 
-      // Extract location (if available)
-      const location = item.pagemap?.metatags?.[0]?.["og:location"] || "Unknown location";
+      // Extract location
+      const address =
+        item.pagemap?.metatags?.[0]?.["og:location"] || // From metadata
+        item.pagemap?.metatags?.[0]?.["og:address"] || // Address field
+        "Location unavailable";
 
-      // Extract time using regex for AM/PM or numbers
+      const formattedLocation = latitude && longitude
+        ? `${address} (Lat: ${latitude}, Lng: ${longitude})`
+        : address;
+
+      // Extract time including "March" or "Mar" and AM/PM times
       const snippet = item.snippet || "";
-      const timeRegex = /(\d{1,2}:\d{2}\s?(AM|PM))|(\d{1,2}\s?(AM|PM))/i;
+      const dateRegex = /\b((?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s?\d{1,2}(?:,\s?\d{4})?)\b/gi;
+      const timeRegex = /\b(\d{1,2}:\d{2}\s?(AM|PM)|\d{1,2}\s?(AM|PM))\b/i;
+
+      const dateMatch = snippet.match(dateRegex);
       const timeMatch = snippet.match(timeRegex);
-      const time = timeMatch ? timeMatch[0] : "Time not available";
+
+      const time = dateMatch
+        ? `${dateMatch[0]} ${timeMatch ? timeMatch[0] : ""}`.trim()
+        : timeMatch
+        ? timeMatch[0]
+        : "Time not available";
 
       return {
         id: uuidv4(),
         title: item.title || "No title available",
         snippet: snippet || "No description available",
-        image: image || null,
+        image: image || "https://via.placeholder.com/300x200?text=No+Image+Available",
         contextLink: item.link || "https://example.com",
-        location,
-        time,
+        location: formattedLocation,
+        time: time,
       };
     });
 
