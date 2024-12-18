@@ -1,10 +1,12 @@
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 
+// Fetch all events
 const getAllEvents = async (req, res) => {
   try {
     const { offset = 0, limit = 10, latitude, longitude, searchQuery } = req.query;
 
+    // Build the query
     let locationQuery = "United States";
     if (latitude && longitude) {
       locationQuery = `near ${latitude},${longitude}`;
@@ -43,9 +45,11 @@ const getAllEvents = async (req, res) => {
       return res.status(404).json({ error: "No events found." });
     }
 
+    // Map API response to event format
     const events = items.map((item) => {
-      // Extract image
       let image = null;
+
+      // Extract image
       if (item.pagemap?.cse_image?.[0]?.src) {
         image = item.pagemap.cse_image[0].src;
       } else if (item.pagemap?.cse_thumbnail?.[0]?.src) {
@@ -59,9 +63,10 @@ const getAllEvents = async (req, res) => {
         item.pagemap?.metatags?.[0]?.["og:region"] ||
         "Location unavailable";
 
-      const formattedLocation = latitude && longitude
-        ? `${address} (Lat: ${latitude}, Lng: ${longitude})`
-        : address;
+      const formattedLocation =
+        latitude && longitude
+          ? `${address} (Lat: ${latitude}, Lng: ${longitude})`
+          : address;
 
       // Extract time
       const snippet = item.snippet || "";
@@ -101,4 +106,27 @@ const getAllEvents = async (req, res) => {
   }
 };
 
-module.exports = { getAllEvents };
+// Fetch event detail by ID
+const getEventDetail = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Example: Replace with actual logic to fetch event details
+    const event = {
+      id,
+      title: "Sample Event Title",
+      snippet: "This is a sample event description.",
+      image: "https://via.placeholder.com/300x200?text=Event+Image",
+      contextLink: "https://example.com",
+      location: "Sample Location",
+      time: "Sample Time",
+    };
+
+    res.json(event);
+  } catch (error) {
+    console.error("Error in getEventDetail:", error.message);
+    res.status(500).json({ error: "Failed to fetch event details." });
+  }
+};
+
+module.exports = { getAllEvents, getEventDetail };
