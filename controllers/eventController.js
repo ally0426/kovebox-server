@@ -4,31 +4,38 @@ const eventDetailsCache = {};
 
 const getAllEvents = async (req, res) => {
   try {
-    const { offset = 0, limit = 10, latitude, longitude } = req.query;
+    const {
+      offset = 0,
+      limit = 30,
+      latitude,
+      longitude,
+      searchQuery,
+    } = req.query;
 
     console.log("Received query parameters:", {
       offset,
       limit,
       latitude,
       longitude,
+      searchQuery,
     });
 
-    let locationQuery = "Los Angeles, CA";
+    let locationQuery = "United States";
     if (latitude && longitude) {
       if (!isNaN(parseFloat(latitude)) && !isNaN(parseFloat(longitude))) {
-        locationQuery = `${latitude},${longitude}`;
+        locationQuery = `near ${latitude},${longitude}`;
       }
     }
 
     const keywords = [
-      "Korean",
-      "K-pop",
-      "Korean cooking",
-      "Korean course",
-      "Korean language",
+      "Korean events",
+      "K-pop events",
+      "Korean cooking events",
+      "Korean cultural events",
+      "Korean language classes",
     ];
-    const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" "); // | instead of OR
-    const query = `${keywordQuery} event ${locationQuery}`;
+    const keywordQuery = keywords.map((keyword) => `"${keyword}"`).join(" OR "); // | instead of " "
+    const query = `${keywordQuery} ${locationQuery}`;
     console.log("Constructed query:", query);
 
     const response = await axios.get(
@@ -55,6 +62,8 @@ const getAllEvents = async (req, res) => {
 
     // Generate UUID for each event
     const events = items.map((item) => {
+      // Extract image
+      let image = null;
       if (item.pagemap?.cse_image?.[0]?.src) {
         image = item.pagemap?.cse_image?.[0]?.src;
       } else if (item.pagemap?.cse_image) {
@@ -68,6 +77,18 @@ const getAllEvents = async (req, res) => {
         image = $("img").first().attr("src") || null;
       }
       console.log("Resolved image: ", image);
+      // Extract location
+      const address =
+        item.pagemap?.metatags?.[0]?.["og:location"] ||
+        item.pagemap?.metatags?.[0]?.["og:address"] ||
+        item.pagemap?.metatags?.[0]?.["og:region"] ||
+        "Location unavailable";
+      const formattedLocation =
+        latitude && longitude
+          ? `${address} (Lat: ${latitude} Lng: ${longitude})`
+          : address;
+
+      // Extract time
 
       return {
         id: uuidv4(), // Unique ID for each event
