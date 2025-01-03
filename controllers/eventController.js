@@ -6,7 +6,7 @@ const getAllEvents = async (req, res) => {
   try {
     const {
       offset = 0,
-      limit = 30,
+      limit = 10,
       latitude,
       longitude,
       searchQuery,
