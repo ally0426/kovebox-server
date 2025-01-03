@@ -56,15 +56,14 @@ const getAllEvents = async (req, res) => {
 
     // Map API response to event format
     const events = items.map((item) => {
+      // Extract image
       let image = null;
-
       // Extract image
       if (item.pagemap?.cse_image?.[0]?.src) {
         image = item.pagemap.cse_image[0].src;
       } else if (item.pagemap?.cse_thumbnail?.[0]?.src) {
         image = item.pagemap.cse_thumbnail[0].src;
       }
-      console.log("Resolved image: ", image);
 
       // Extract location
       const address =
@@ -119,11 +118,11 @@ const getAllEvents = async (req, res) => {
   }
 };
 
+module.exports = { getAllEvents };
 // Fetch event detail by ID
 const getEventDetail = async (req, res) => {
   try {
     const { id } = req.params;
-
     // Example: Replace with actual logic to fetch event details
     const event = {
       id,
@@ -134,14 +133,12 @@ const getEventDetail = async (req, res) => {
       location: "Sample Location",
       time: "Sample Time",
     };
-
     res.json(event);
   } catch (error) {
     console.error("Error in getEventDetail:", error.message);
     res.status(500).json({
-      error: "500 error - Failed to fetch event details by event ID.",
+      error: "500 Error - Failed to fetch event details by event ID.",
     });
   }
 };
-
 module.exports = { getAllEvents, getEventDetail };
